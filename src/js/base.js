@@ -22,8 +22,11 @@
 		// Draw snowflakes.
 		for (let i = 0; i <= 50; i++) {
 			// Get random positions for flakes.
-			var x = Math.floor(Math.random() * 199);
-			var y = Math.floor(Math.random() * 199);
+			var x = Math.floor(Math.random() * obj_canvas.width);
+			var y = Math.floor(Math.random() * obj_canvas.height);
+
+			// var x = i;
+			// var y = i;
 
 			// Make the flakes white
 			ctx.fillStyle = "white";
@@ -37,12 +40,18 @@
 
 		document.getElementsByTagName('body')[0].appendChild(obj_canvas);
 
-		let tt = ctx.getImageData(0, 0, 200, 200);
+		let _data_url = obj_canvas.toDataURL();
 
-		console.log( '-----', tt );
+		let _data = ctx.getImageData(0, 0, 200, 200).data;
+
+		console.log( '_data_url :: ', _data_url );
+		console.log( '_data :: ', _data );
+
+		return _data;
+
 	}
 
-	function getImageData(){
+	function getImageData( str_name ){
 		let _obj_img = new Image(),
 			_obj_canvas = document.createElement( 'canvas' );
 
@@ -50,7 +59,11 @@
 			let ctx = _obj_canvas.getContext("2d");
 			
 			_obj_img.onload = function() {
-				console.log(2);
+
+				console.log( 'this.width :: ', this.width );
+
+				_obj_canvas.width = this.width;
+				_obj_canvas.height = this.height;
 
 				// Load the image into the context.
 				ctx.drawImage(_obj_img, 0, 0);
@@ -63,7 +76,8 @@
 			// _obj_img.crossOrigin = "Anonymous";
 			// _obj_img.setAttribute('crossOrigin', '');
 
-			_obj_img.src = "./img/florence-1066307_960_720.jpg";
+			_obj_img.src = str_name;
+			// _obj_img.src = "./img/florence-1066307_960_720.jpg";
 			// _obj_img.src = "http://samples.msdn.microsoft.com/workshop/samples/canvas/kestral.png";
 
 		}
@@ -73,7 +87,28 @@
 	};
 
 	(function init(){
-		getImageData();
+		// getImageData();
+		let _obj_file = document.getElementById('file-upload');
+		_obj_file.onchange = function( e ){
+
+			var reader = new FileReader();
+			reader.readAsDataURL(this.files[0]);
+			console.log( 'reader :: ', reader );
+
+			console.log( 'reader.result :: ', reader.result );
+
+			// let _aa = this.files[0].getAsDataURL();
+			// console.log( '_aa :: ', _aa );
+
+			let windowURL = window.URL || window.webkitURL;
+			let _bb = windowURL.createObjectURL(this.files[0]);
+
+			console.log( '_bb :: ', _bb );
+
+			// console.log( 'this.files[0] :: ', this.files[0] );
+			// console.log( 'this.files[0].name :: ', this.files[0].name );
+			getImageData( _bb );
+		};
 	})();
 })();
 

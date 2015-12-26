@@ -7,6 +7,7 @@
     "build:min": "webpack --config webpack.config.production.js",
     "build": "webpack --config webpack.config.development.js",
     "dev": "webpack --config webpack.config.development.js --watch",
+    "host": "webpack-dev-server --config webpack.config.development.js --watch --hot --content-base build/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +28,7 @@
     "extract-text-webpack-plugin": "^0.9.1",
     "html-webpack-plugin": "^1.7.0",
     "script-loader": "^0.6.1",
-    "webpack": "^1.12.9"
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
   }
 }
