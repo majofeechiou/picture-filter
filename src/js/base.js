@@ -104,13 +104,67 @@
 			}
 		}
 
+		changeImageDataSnow( obj_img, _num_width2, _num_height2 ) {
+
+			let obj_canvas = document.createElement('canvas');
+			let ctx = obj_canvas.getContext('2d');
+
+			let _num_width = obj_img.width;
+			let _num_height = obj_img.height;
+
+			obj_canvas.width = _num_width;
+			obj_canvas.height = _num_height;
+
+			ctx.drawImage(obj_img, 0, 0, _num_width, _num_height);
+
+			console.log( _num_width, _num_height );
+
+			this.drawImageCover( ctx, obj_img, 0, 0, _num_width, _num_height );
+
+
+					// Draw snowflakes.
+					for (let i = 0; i <= 500; i++) {
+						// Get random positions for flakes.
+						var x = Math.floor(Math.random() * _num_width);
+						var y = Math.floor(Math.random() * _num_height);
+						// var x = i;
+						// var y = i;
+
+						// var x = i;
+						// var y = i;
+
+						// Make the flakes white
+						ctx.fillStyle = "white";
+
+						// Draw an individual flakes.
+						ctx.beginPath();
+						ctx.arc(x, y, 3, 0, Math.PI * 2, true);
+						ctx.closePath();
+						ctx.fill();
+					}
+
+			document.getElementsByTagName('body')[0].appendChild(obj_canvas);
+
+			// ctx.drawImage(obj_img, 0, 0);
+
+			let _data_url = obj_canvas.toDataURL();
+
+			// let _data = ctx.getImageData(0, 0, _num_width, _num_height).data;
+
+			// console.log( '_data_url :: ', _data_url );
+			// console.log( '_data :: ', _data );
+
+			return _data_url;
+
+		}
+
 		// 在預覽圖片時，我們會需要對圖片做縮放，才能讓整張圖都秀出來
-		drawImageCover(ctx, img, x, y, w, h, offsetX, offsetY) {
+		drawImageCover(obj_canvas_2d, obj_img, x, y, w, h, offsetX, offsetY) {
 
 		    if (arguments.length === 2) {
 		        x = y = 0;
-		        w = ctx.canvas.width;
-		        h = ctx.canvas.height;
+		        w = obj_canvas_2d.canvas.width;
+		        h = obj_canvas_2d.canvas.height;
 		    }
 
 		    // default offset is center
@@ -123,8 +177,8 @@
 		    if (offsetX > 1) offsetX = 1;
 		    if (offsetY > 1) offsetY = 1;
 
-		    let iw = img.width,
-		        ih = img.height,
+		    let iw = obj_img.width,
+		        ih = obj_img.height,
 		        r = Math.min(w / iw, h / ih),
 		        nw = iw * r,   // new prop. width
 		        nh = ih * r,   // new prop. height
@@ -150,7 +204,7 @@
 		    if (ch > ih) ch = ih;
 
 		    // fill image in dest. rectangle
-		    ctx.drawImage(img, cx, cy, cw, ch,  x, y, w, h);
+		    obj_canvas_2d.drawImage(obj_img, cx, cy, cw, ch,  x, y, w, h);
 		}
 
 		// 實際開始執行任務
@@ -171,13 +225,22 @@
 
 				let _obj_img = new Image();
 				_obj_img.onload = function(){
-					// _obj_canvas_2d.drawImage(_obj_img, 0, 0);
-					_me.drawImageCover( _obj_canvas_2d, _obj_img, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+				    let _bb_snow = _me.changeImageDataSnow( _obj_img, _me.getPreviewSize().width, _me.getPreviewSize().height );
+
+				    let _obj_img_snow = new Image();
+				    console.log( '_bb_snow :: ', _bb_snow );
+				    _obj_img_snow.onload = function(){
+						_me.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+						// _obj_canvas_2d.drawImage(_obj_img, 0, 0);
+				    };
+				    _obj_img_snow.src = _bb_snow;
+				    _obj_img_snow.crossOrigin = null;
 
 				};
+				// _obj_img.src = _bb2;
 				_obj_img.src = _bb;
+				console.log( '_bb :: ', _bb );
 				_obj_img.crossOrigin = null;
-
 
 			};
 		}
