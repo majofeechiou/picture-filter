@@ -187,6 +187,44 @@
 			}
 		}
 
+		// // 實際開始執行任務
+		// create(){
+		// 	let _me = this;
+		// 	this.getObjUpload().onchange = function( e ){
+
+		// 		let windowURL = window.URL || window.webkitURL;
+		// 		let _bb = windowURL.createObjectURL(this.files[0]);
+
+		// 		_me.setImageOriginData( _bb );
+
+		// 		let _obj_main = _me.getMainSection();
+		// 		let _obj_canvas_preview = _me.getObjCanvasPreview();
+		// 		let _obj_canvas_2d = _obj_canvas_preview.getContext("2d");
+
+		// 		_obj_canvas_preview.style.border = '1px solid #f00';
+
+		// 		let _obj_img = new Image();
+		// 		_obj_img.onload = function(){
+		// 		    // let _bb_snow = painterStyle.snow( _obj_img, _me.getPreviewSize().width, _me.getPreviewSize().height );
+		// 		    let _bb_snow = painterStyle.snow( _obj_img );
+
+		// 		    let _obj_img_snow = new Image();
+		// 		    console.log( '_bb_snow :: ', _bb_snow );
+		// 		    _obj_img_snow.onload = function(){
+		// 				painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+		// 		    };
+		// 		    _obj_img_snow.src = _bb_snow;
+		// 		    _obj_img_snow.crossOrigin = null;
+
+		// 		};
+		// 		// _obj_img.src = _bb2;
+		// 		_obj_img.src = _bb;
+		// 		console.log( '_bb :: ', _bb );
+		// 		_obj_img.crossOrigin = null;
+
+		// 	};
+		// }
+
 		// 實際開始執行任務
 		create(){
 			let _me = this;
@@ -203,26 +241,53 @@
 
 				_obj_canvas_preview.style.border = '1px solid #f00';
 
-				let _obj_img = new Image();
-				_obj_img.onload = function(){
-				    // let _bb_snow = painterStyle.snow( _obj_img, _me.getPreviewSize().width, _me.getPreviewSize().height );
-				    let _bb_snow = painterStyle.snow( _obj_img );
 
-				    let _obj_img_snow = new Image();
-				    console.log( '_bb_snow :: ', _bb_snow );
-				    _obj_img_snow.onload = function(){
-						painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
-				    };
-				    _obj_img_snow.src = _bb_snow;
-				    _obj_img_snow.crossOrigin = null;
 
-				};
-				// _obj_img.src = _bb2;
-				_obj_img.src = _bb;
-				console.log( '_bb :: ', _bb );
-				_obj_img.crossOrigin = null;
+				let imageProcess01 = new ImageProcess( _bb, function(){
+					console.log( 'this :: ', this );
+				} );
+
+
+
+
+				// let _obj_img = new Image();
+				// _obj_img.onload = function(){
+				//     // let _bb_snow = painterStyle.snow( _obj_img, _me.getPreviewSize().width, _me.getPreviewSize().height );
+				//     let _bb_snow = painterStyle.snow( _obj_img );
+
+				//     let _obj_img_snow = new Image();
+				//     console.log( '_bb_snow :: ', _bb_snow );
+				//     _obj_img_snow.onload = function(){
+				// 		painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+				//     };
+				//     _obj_img_snow.src = _bb_snow;
+				//     _obj_img_snow.crossOrigin = null;
+
+				// };
+				// // _obj_img.src = _bb2;
+				// _obj_img.src = _bb;
+				// console.log( '_bb :: ', _bb );
+				// _obj_img.crossOrigin = null;
 
 			};
+		}
+
+	}
+
+	class ImageProcess{
+
+		constructor( str_image_base64, callback ){
+			this.obj_image   = new Image();
+			this.obj_image.crossOrigin = null;
+			console.log( 'str_image_base64 :: ', str_image_base64 );
+			this.obj_image.onload = function( callback ){
+				if( callback && callback instanceof Function === true ){
+				console.log( '-- ----' );
+
+				   callback();
+				}
+			};
+			this.obj_image.src = str_image_base64;
 		}
 
 	}
