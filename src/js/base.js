@@ -241,12 +241,42 @@
 
 				_obj_canvas_preview.style.border = '1px solid #f00';
 
+				let _pp = painterStyle.snow;
 
+				let imageProcess01 = new ImageProcess( _bb, _pp).then( function( rr ){
+					let imageProcess02 = new ImageProcess( rr.data, _pp).then( function( rr2 ){
+						
+						console.log( 'rr2 ::: ', rr2 );
 
-				let imageProcess01 = new ImageProcess( _bb, function(){
-					console.log( 'this :: ', this );
+						let _obj_img_snow = new Image();
+					    _obj_img_snow.onload = function(){
+							painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+					    };
+						_obj_img_snow.src = rr2.data;
+						_obj_img_snow.crossOrigin = null;
+
+					} );
 				} );
 
+
+
+				setTimeout(function(){
+
+				let imageProcess02 = new ImageProcess( _bb, _pp ).then( function( rr2 ){
+					
+					console.log( 'rr2 ::: ', rr2 );
+
+					let _obj_img_snow = new Image();
+				    _obj_img_snow.onload = function(){
+						painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+				    };
+
+					_obj_img_snow.src = rr2.data;
+					_obj_img_snow.crossOrigin = null;
+					
+				} );
+				
+				},3000);
 
 
 
@@ -276,18 +306,46 @@
 
 	class ImageProcess{
 
-		constructor( str_image_base64, callback ){
-			this.obj_image   = new Image();
-			this.obj_image.crossOrigin = null;
-			console.log( 'str_image_base64 :: ', str_image_base64 );
-			this.obj_image.onload = function( callback ){
-				if( callback && callback instanceof Function === true ){
-				console.log( '-- ----' );
+		constructor( str_image_base64, painter_style, callback ){
 
-				   callback();
-				}
-			};
-			this.obj_image.src = str_image_base64;
+			let _obj_process = this.getData( str_image_base64, painter_style );
+
+			if( callback ){
+				_obj_process.then( callback );
+			}else{
+				return _obj_process;
+			}
+
+		}
+
+		getData( src, painter_style ){
+
+			let promise = new Promise( function (resolve, reject) {
+
+			    let obj_image = new Image();
+
+		        obj_image.onload = function () {
+		        	let _bb_snow = painter_style( this );
+		        	resolve({
+		        		success: true,
+		        		data: _bb_snow
+		        	});
+		        };
+		        obj_image.onerror = function () {
+					reject({
+						success: true,
+						error_message: '產生錯誤，未成功得到資料'
+					});
+		        };
+
+		        obj_image.crossOrigin = null;
+		        obj_image.src = src ;
+
+			});
+
+			// Return the promise
+			return promise;
+
 		}
 
 	}
