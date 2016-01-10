@@ -104,6 +104,8 @@
 
 		constructor( obj, json_size ){
 
+			this.defindEvent = new DefindEvent;
+
 			this.WEAK_MAP = new WeakMap();
 
 			this.initConst = function( object ){
@@ -181,53 +183,39 @@
 			json_size.height = (json_size.height>0)? json_size.height : 450 ;
 
 			if( obj.nodeType>=1 ){
+				console.log('-::', obj);
 				this.addConst( this, 'MAIN_SECTION', obj );
 				this.addConst( this, 'PREVIEW_SIZE', json_size );
 				this.makeTempate();
 			}
 		}
 
-		// // 實際開始執行任務
-		// create(){
-		// 	let _me = this;
-		// 	this.getObjUpload().onchange = function( e ){
+		paintStep( json_detail, fn_painter_style, callback ){
+			json_detail = json_detail || {} ;
+			let _me = this;
+			let imageProcess02 = new ImageProcess( json_detail.data, fn_painter_style).then( function( response ){
+				if( callback && (callback instanceof Function===true) ){
+					callback( response );
+				}
+			});
+		}
 
-		// 		let windowURL = window.URL || window.webkitURL;
-		// 		let _bb = windowURL.createObjectURL(this.files[0]);
-
-		// 		_me.setImageOriginData( _bb );
-
-		// 		let _obj_main = _me.getMainSection();
-		// 		let _obj_canvas_preview = _me.getObjCanvasPreview();
-		// 		let _obj_canvas_2d = _obj_canvas_preview.getContext("2d");
-
-		// 		_obj_canvas_preview.style.border = '1px solid #f00';
-
-		// 		let _obj_img = new Image();
-		// 		_obj_img.onload = function(){
-		// 		    // let _bb_snow = painterStyle.snow( _obj_img, _me.getPreviewSize().width, _me.getPreviewSize().height );
-		// 		    let _bb_snow = painterStyle.snow( _obj_img );
-
-		// 		    let _obj_img_snow = new Image();
-		// 		    console.log( '_bb_snow :: ', _bb_snow );
-		// 		    _obj_img_snow.onload = function(){
-		// 				painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
-		// 		    };
-		// 		    _obj_img_snow.src = _bb_snow;
-		// 		    _obj_img_snow.crossOrigin = null;
-
-		// 		};
-		// 		// _obj_img.src = _bb2;
-		// 		_obj_img.src = _bb;
-		// 		console.log( '_bb :: ', _bb );
-		// 		_obj_img.crossOrigin = null;
-
-		// 	};
-		// }
+		paintInCanvas( json ){
+			json = json || {} ;
+			let _me = this;
+			let _obj_canvas_preview = _me.getObjCanvasPreview();
+			let _obj_canvas_2d = _obj_canvas_preview.getContext("2d");
+			let _obj_img = new Image();
+		    _obj_img.onload = function(){
+				painterAction.drawImageCover( _obj_canvas_2d, _obj_img, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+		    };
+			_obj_img.src = json.data ;
+		}
 
 		// 實際開始執行任務
 		create(){
 			let _me = this;
+			
 			this.getObjUpload().onchange = function( e ){
 
 				let windowURL = window.URL || window.webkitURL;
@@ -236,47 +224,59 @@
 				_me.setImageOriginData( _bb );
 
 				let _obj_main = _me.getMainSection();
-				let _obj_canvas_preview = _me.getObjCanvasPreview();
-				let _obj_canvas_2d = _obj_canvas_preview.getContext("2d");
 
-				_obj_canvas_preview.style.border = '1px solid #f00';
+				let _fn_painter_style = painterStyle.snow;
 
-				let _pp = painterStyle.snow;
+				let imageProcess01 = new ImageProcess( _bb, _fn_painter_style).then( function( json_res ){
 
-				let imageProcess01 = new ImageProcess( _bb, _pp).then( function( rr ){
-					let imageProcess02 = new ImageProcess( rr.data, _pp).then( function( rr2 ){
+					if( json_res.success===true ){
+
+						_me.defindEvent.createListen( 'image.data.changed', 'step0', {step: 0, origin_data:_bb, data:json_res.data} );
+
+						_me.getMainSection().addEventListener('image.data.changed', function( e ){
+							_me.paintStep( e.detail, _fn_painter_style );
+						});
+
+						_me.defindEvent.dispatchEvent( 'step0', _me.getMainSection() );
+
+					}
+
+				});
+
+				// let imageProcess01 = new ImageProcess( _bb, _pp).then( function( rr ){
+				// 	let imageProcess02 = new ImageProcess( rr.data, _pp).then( function( rr2 ){
 						
-						console.log( 'rr2 ::: ', rr2 );
+				// 		console.log( 'rr2 ::: ', rr2 );
 
-						let _obj_img_snow = new Image();
-					    _obj_img_snow.onload = function(){
-							painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
-					    };
-						_obj_img_snow.src = rr2.data;
-						_obj_img_snow.crossOrigin = null;
+				// 		let _obj_img_snow = new Image();
+				// 	    _obj_img_snow.onload = function(){
+				// 			painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+				// 	    };
+				// 		_obj_img_snow.src = rr2.data;
+				// 		_obj_img_snow.crossOrigin = null;
 
-					} );
-				} );
+				// 	} );
+				// } );
 
 
 
-				setTimeout(function(){
+				// setTimeout(function(){
 
-				let imageProcess02 = new ImageProcess( _bb, _pp ).then( function( rr2 ){
+				// let imageProcess02 = new ImageProcess( _bb, _pp ).then( function( rr2 ){
 					
-					console.log( 'rr2 ::: ', rr2 );
+				// 	console.log( 'rr2 ::: ', rr2 );
 
-					let _obj_img_snow = new Image();
-				    _obj_img_snow.onload = function(){
-						painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
-				    };
+				// 	let _obj_img_snow = new Image();
+				//     _obj_img_snow.onload = function(){
+				// 		painterAction.drawImageCover( _obj_canvas_2d, _obj_img_snow, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
+				//     };
 
-					_obj_img_snow.src = rr2.data;
-					_obj_img_snow.crossOrigin = null;
+				// 	_obj_img_snow.src = rr2.data;
+				// 	_obj_img_snow.crossOrigin = null;
 					
-				} );
+				// } );
 				
-				},3000);
+				// },3000);
 
 
 
@@ -350,6 +350,47 @@
 
 	}
 
+	class DefindEvent{
+
+		constructor(){
+			this.triggers = {} ;
+		}
+
+		createListen( str_event_name, str_save_name, json_data ){
+			if( this.triggers[ str_save_name ]!==undefined ){
+				this.triggers[ str_save_name ] = null ;
+				delete this.triggers[ str_save_name ] ;
+			}
+			this.triggers[ str_save_name ] = new CustomEvent(str_event_name, {detail:json_data});
+		}
+
+		dispatchEvent( str_save_name, obj_elem ){
+			obj_elem.dispatchEvent( this.triggers[ str_save_name ] );
+		}
+
+	}
+
+	// class EndPainter {
+	// 	constructor(obj_scope) {
+	// 		this.event = new CustomEvent('build',{detail:{rr:11}});
+
+	// 		this.obj_scope = obj_scope ;
+
+	// 		// Listen for the event.
+	// 		this.obj_scope.addEventListener('build', function (e) { 
+	// 			let _json_detail = e.detail || {} ;
+	// 			// callback( _json_detail );
+	// 			console.log('_json_detail :: ', _json_detail); 
+	// 		}, false);
+			
+	// 	}
+	
+	// 	dispatchEvent(){
+	// 		// Dispatch the event.
+	// 		this.obj_scope.dispatchEvent(this.event);
+	// 	}
+	// }
+
 	let painterStyle = new PainterStyle;
 	let painterAction = new PainterAction;
 
@@ -359,7 +400,11 @@
 
 	let a = new Pfilter(_obj_main[0]);
 	let b = new Pfilter(_obj_main[1],{width: 450, height: 100});
-	a.create();
-	b.create();
+
+	setTimeout(function() {
+		a.create();
+		b.create();
+	}, 0);
+	
 
 })(window);
