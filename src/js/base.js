@@ -20,7 +20,7 @@
 
 			obj_canvas_2d.drawImage(obj_img, 0, 0, _num_width, _num_height);
 
-			console.log( _num_width, _num_height );
+			// console.log( _num_width, _num_height );
 
 			painterAction.drawImageCover( obj_canvas_2d, obj_img, 0, 0, _num_width, _num_height );
 
@@ -183,7 +183,6 @@
 			json_size.height = (json_size.height>0)? json_size.height : 450 ;
 
 			if( obj.nodeType>=1 ){
-				console.log('-::', obj);
 				this.addConst( this, 'MAIN_SECTION', obj );
 				this.addConst( this, 'PREVIEW_SIZE', json_size );
 				this.makeTempate();
@@ -193,9 +192,45 @@
 		paintStep( json_detail, fn_painter_style, callback ){
 			json_detail = json_detail || {} ;
 			let _me = this;
-			let imageProcess02 = new ImageProcess( json_detail.data, fn_painter_style).then( function( response ){
+			let imageProcess = new ImageProcess( json_detail.data, fn_painter_style).then( function( response ){
 				if( callback && (callback instanceof Function===true) ){
 					callback( response );
+				}
+			});
+		}
+
+		painterRun( json, fn_painter_style ){
+			json = json || {} ;
+			let _me = this ;
+			let _num_index = json.step || 0 ;
+			let imageProcess = new ImageProcess( json.data, fn_painter_style).then( function( json_res ){
+
+				if( json_res.success===true ){
+
+					_me.defindEvent.createListen( 'image.data.changed.'+_num_index, {step: _num_index, origin_data:json.data, data:json_res.data} );
+
+					_me.getMainSection().removeEventListener('image.data.changed.'+_num_index);
+					_me.getMainSection().addEventListener('image.data.changed.'+_num_index, function( e ){
+						console.log( '------', _num_index );
+						if( _num_index<3 ){
+							_me.paintStep( e.detail, fn_painter_style, function(){
+								let _json_e_detail = e.detail || {} ;
+								_json_e_detail.step = _json_e_detail.step+1;
+								console.trace();
+								_me.painterRun( _json_e_detail, fn_painter_style );
+							} );
+						}else if(_num_index===3){
+							console.log('end');
+							_me.paintInCanvas( e.detail );
+						}
+
+					});
+
+				}
+
+			}).then(function(){
+				if( _num_index<=3 ){
+					_me.defindEvent.dispatchEvent( 'image.data.changed.'+_num_index, _me.getMainSection() );
 				}
 			});
 		}
@@ -223,25 +258,30 @@
 
 				_me.setImageOriginData( _bb );
 
-				let _obj_main = _me.getMainSection();
-
 				let _fn_painter_style = painterStyle.snow;
 
-				let imageProcess01 = new ImageProcess( _bb, _fn_painter_style).then( function( json_res ){
+				let _json = {
+					step: 0,
+					data: _bb
+				};
 
-					if( json_res.success===true ){
+				_me.painterRun( _json, _fn_painter_style );
 
-						_me.defindEvent.createListen( 'image.data.changed', 'step0', {step: 0, origin_data:_bb, data:json_res.data} );
+				// let imageProcess01 = new ImageProcess( _bb, _fn_painter_style).then( function( json_res ){
 
-						_me.getMainSection().addEventListener('image.data.changed', function( e ){
-							_me.paintStep( e.detail, _fn_painter_style );
-						});
+				// 	if( json_res.success===true ){
 
-						_me.defindEvent.dispatchEvent( 'step0', _me.getMainSection() );
+				// 		_me.defindEvent.createListen( 'image.data.changed', 'step0', {step: 0, origin_data:_bb, data:json_res.data} );
 
-					}
+				// 		_me.getMainSection().addEventListener('image.data.changed', function( e ){
+				// 			_me.paintStep( e.detail, _fn_painter_style );
+				// 		});
 
-				});
+				// 		_me.defindEvent.dispatchEvent( 'step0', _me.getMainSection() );
+
+				// 	}
+
+				// });
 
 				// let imageProcess01 = new ImageProcess( _bb, _pp).then( function( rr ){
 				// 	let imageProcess02 = new ImageProcess( rr.data, _pp).then( function( rr2 ){
@@ -356,16 +396,16 @@
 			this.triggers = {} ;
 		}
 
-		createListen( str_event_name, str_save_name, json_data ){
-			if( this.triggers[ str_save_name ]!==undefined ){
-				this.triggers[ str_save_name ] = null ;
-				delete this.triggers[ str_save_name ] ;
+		createListen( str_event_name, json_data ){
+			if( this.triggers[ str_event_name ]!==undefined ){
+				this.triggers[ str_event_name ] = null ;
+				delete this.triggers[ str_event_name ] ;
 			}
-			this.triggers[ str_save_name ] = new CustomEvent(str_event_name, {detail:json_data});
+			this.triggers[ str_event_name ] = new CustomEvent(str_event_name, {detail:json_data});
 		}
 
-		dispatchEvent( str_save_name, obj_elem ){
-			obj_elem.dispatchEvent( this.triggers[ str_save_name ] );
+		dispatchEvent( str_event_name, obj_elem ){
+			obj_elem.dispatchEvent( this.triggers[ str_event_name ] );
 		}
 
 	}
