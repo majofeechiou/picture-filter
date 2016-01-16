@@ -101,8 +101,8 @@
 		}
 
 		uploadAction( scope_calss ){
-			let _me = this;
-			_me.onchange = function( e ){ // 從頭更換圖片
+			let _scope = this;
+			_scope.onchange = function( e ){ // 從頭更換圖片
 				let windowURL = window.URL || window.webkitURL;
 				let _str_image_data = windowURL.createObjectURL(this.files[0]);
 				scope_calss.setImageInitData( _str_image_data );
@@ -114,64 +114,165 @@
 	// 運算的方式
 	class ImageDataComputMethod{
 		constructor(){
-			let _me = this;
+			let _scope = this;
 
-			this.obj_canvas = document.createElement('canvas');
-			this.obj_canvas_2d = this.obj_canvas.getContext('2d');
-			console.log( 'this.obj_canvas :: ', this.obj_canvas );
-			console.log( 'this.obj_canvas_2d :: ', this.obj_canvas_2d );
+			_scope.obj_canvas = document.createElement('canvas');
+			_scope.obj_canvas_2d = _scope.obj_canvas.getContext('2d');
 
-			this.obj_image = new Image();
-			this.obj_image.onload = function(){
-				let _num_width = this.width;
-				let _num_height = this.height;
-				_me.obj_canvas_2d.drawImage(this, 0, 0, _num_width, _num_height);
+			_scope.obj_image = new Image();
 
-				// Draw snowflakes.
-				for (let i = 0; i <= 500; i++) {
-					// Get random positions for flakes.
-					var x = Math.floor(Math.random() * _num_width);
-					var y = Math.floor(Math.random() * _num_height);
+			emitter.on('imageData.step.success.loaded', function(e){
+				let _json = arguments[0],
+					_str_method = _json.painter_method;
 
-					// Make the flakes white
-					_me.obj_canvas_2d.fillStyle = "white";
+				if( _str_method==='SNOW' ){
+					_scope.methodSnow( _json );
 
-					// Draw an individual flakes.
-					_me.obj_canvas_2d.beginPath();
-					_me.obj_canvas_2d.arc(x, y, 3, 0, Math.PI * 2, true);
-					_me.obj_canvas_2d.closePath();
-					_me.obj_canvas_2d.fill();
+				}else if( _str_method==='DOT' ){
+					console.log('DOT');
+					_scope.methodDot( _json );
+
+				}else{
+					console.log('ooooother');
 				}
 
-				let _data_url = _me.obj_canvas.toDataURL();
+			});
 
-				emitter.emit('imageData.step.computed', {
-					origin_data: this.src,
-					data: _data_url
-				});
+			_scope.obj_image.onload = function(){
+
+				if( (typeof this.src === 'string') && this.src!=='' ){
+
+					let _num_width = this.width;
+					let _num_height = this.height;
+					_scope.obj_canvas_2d.drawImage(this, 0, 0, _num_width, _num_height);
+
+					emitter.emit('imageData.step.success.loaded', {
+						origin_data: this.src,
+						painter_method: _scope.getPainterMethod(),
+						image_width: _num_width,
+						image_height: _num_height
+					});
+
+				}else{
+					console.log( '***' );
+				}
 
 			}
+
+			_scope.obj_image.error = function(){
+				emitter.emit('imageData.step.error.loaded', {
+					origin_data: this.src
+				});
+			}
+
 		}
-		changeData( str_base64 ){
-			this.obj_image.src = str_base64;
+
+		getPainterMethod(){
+			let _scope = this;
+			return _scope.painter_method;
 		}
+
+		changeData( painter_method, str_base64 ){
+			let _scope = this;
+			_scope.painter_method = painter_method;
+			_scope.obj_image.src = str_base64;
+		}
+
+		// 雪花
+		// https://msdn.microsoft.com/zh-cn/library/gg589486(v=vs.85).aspx
+		methodSnow( json ){
+			let _scope = this;
+			let _num_width = json.image_width,
+				_num_height = json.image_height;
+
+			let x,
+				y;
+
+			// Draw snowflakes. // 雪花
+			for (let i = 0; i <= 500; i++) {
+				// Get random positions for flakes.
+				x = Math.floor(Math.random() * _num_width);
+				y = Math.floor(Math.random() * _num_height);
+
+				// Make the flakes white
+				_scope.obj_canvas_2d.fillStyle = "white";
+
+				// Draw an individual flakes.
+				_scope.obj_canvas_2d.beginPath();
+				_scope.obj_canvas_2d.arc(x, y, 3, 0, Math.PI * 2, true);
+				_scope.obj_canvas_2d.closePath();
+				_scope.obj_canvas_2d.fill();
+			}
+
+			let _data_url = _scope.obj_canvas.toDataURL();
+
+			emitter.emit('imageData.step.success.computed', {
+				origin_data: json.origin_data,
+				data: _data_url
+			});
+
+		}
+
+		// 在照片中添加纹理
+		// https://msdn.microsoft.com/zh-cn/library/gg589486(v=vs.85).aspx
+		methodDot( json ){
+			let _scope = this;
+			let _num_width = json.image_width,
+				_num_height = json.image_height;
+
+			let x,
+				y;
+
+			// Draw snowflakes. // 雪花
+			for (let i = 0; i <= 150; i++) {
+				// Get random positions for flakes.
+				x = Math.floor(Math.random() * _num_width);
+				y = Math.floor(Math.random() * _num_height);
+
+				// Make the flakes white
+				_scope.obj_canvas_2d.fillStyle = "black";
+
+				// Draw an individual flakes.
+				_scope.obj_canvas_2d.beginPath();
+				_scope.obj_canvas_2d.arc(x, y, 5, 0, Math.PI * 2, true);
+				_scope.obj_canvas_2d.closePath();
+				_scope.obj_canvas_2d.fill();
+			}
+
+			let _data_url = _scope.obj_canvas.toDataURL();
+
+			document.getElementsByTagName('body')[0].appendChild( _scope.obj_canvas );
+
+			emitter.emit('imageData.step.success.computed', {
+				origin_data: json.origin_data,
+				data: _data_url
+			});
+		}
+
 	}
 
 	// 利用事件的補捉，來記錄我們的圖片運算狀況
 	class ImageDataComputeProcess{
 		constructor(){
-			let _me = this;
+			let _scope = this;
 			this.step_data = [];
 			emitter.on('initData.changed', function(e){
-				_me.step_data = [];
+				_scope.step_data = [];
 				let _json_data = arguments[0];
-				imageDataComputMethod.changeData( _json_data.origin_data );
+				imageDataComputMethod.changeData( 'SNOW', _json_data.origin_data );
 			});
-			emitter.on('imageData.step.computed', function(e){
+			emitter.on('imageData.step.success.computed', function(e){
 				let _json_data = arguments[0];
-				_me.step_data.push(_json_data);
+				if( _json_data && (typeof _json_data.origin_data === 'string') && (_json_data.origin_data!=='') ){
+					_scope.step_data.push(_json_data);
+					console.log( '_scope.step_data :: ', _scope.step_data );
+					if( _scope.step_data.length===1 && _scope.step_data[0] ){ // debug
+						imageDataComputMethod.changeData( 'DOT', _json_data.data );
+					}
+					console.log( '_scope.step_data :: ', _scope.step_data );
+				}
 			});
-			emitter.emit('imageData.step.computed');
+			emitter.emit('imageData.step.success.computed');
 		}
 	}
 
