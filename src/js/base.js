@@ -11,8 +11,6 @@
 
 		constructor( obj, json_size ){
 
-			// this.defindEvent = new DefindEvent;
-
 			this.WEAK_MAP = new WeakMap();
 
 			this.initConst = function( object ){
@@ -180,6 +178,10 @@
 					console.log('GRAY');
 					_scope.methodGray( _json );
 
+				}else if( _str_method==='CONTRAST' ){
+					console.log('CONTRAST');
+					_scope.methodContrast( _json );
+
 				}else{
 					console.log('ooooother');
 					_scope.methodOrigin( _json );
@@ -193,7 +195,6 @@
 
 					let _num_width = this.width;
 					let _num_height = this.height;
-					console.log(_num_width, _num_height);
 					_scope.obj_canvas.width = _num_width ;
 					_scope.obj_canvas.height = _num_height ;
 					_scope.obj_canvas_2d.drawImage(this, 0, 0, _num_width, _num_height);
@@ -309,11 +310,7 @@
 			let _num_width = json.image_origin_width,
 				_num_height = json.image_origin_height;
 
-			console.log( 'json :: ', json );
-			console.log( '_scope.obj_canvas_2d :: ', _scope.obj_canvas_2d );
-
 	        let _json_image_data = _scope.obj_canvas_2d.getImageData(0, 0, _num_width, _num_height);
-			console.log( '_json_image_data :: ', _json_image_data );
 
 	        // Loop through data.
 	        for (var i = 0; i < (_num_width*_num_height*4); i += 4) {
@@ -339,11 +336,7 @@
 			let _num_width = json.image_origin_width,
 				_num_height = json.image_origin_height;
 
-			console.log( 'json :: ', json );
-			console.log( '_scope.obj_canvas_2d :: ', _scope.obj_canvas_2d );
-
 	        let _json_image_data = _scope.obj_canvas_2d.getImageData(0, 0, _num_width, _num_height);
-			console.log( '_json_image_data :: ', _json_image_data );
 
 			let _num_red,
 				_num_green,
@@ -382,6 +375,31 @@
 
 			_scope.emitAfterMethod( json );
 
+		}
+
+		// 對比
+		// http://stackoverflow.com/questions/10521978/html5-canvas-image-contrast
+		methodContrast( json ){
+			let _scope = this;
+
+			let _num_width = json.image_origin_width,
+				_num_height = json.image_origin_height;
+
+	        let _json_image_data = _scope.obj_canvas_2d.getImageData(0, 0, _num_width, _num_height);
+
+	        let contrast = -50;
+
+		    var factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+		    for(var i=0;i<_json_image_data.data.length;i+=4){
+		        _json_image_data.data[i] = factor * (_json_image_data.data[i] - 128) + 128;
+		        _json_image_data.data[i+1] = factor * (_json_image_data.data[i+1] - 128) + 128;
+		        _json_image_data.data[i+2] = factor * (_json_image_data.data[i+2] - 128) + 128;
+		    }
+		    
+		    _scope.obj_canvas_2d.putImageData(_json_image_data, 0, 0);
+
+		    _scope.emitAfterMethod( json );
 		}
 
 		emitAfterMethod( json ){
@@ -429,31 +447,43 @@
 
 	class StepMethod{
 		constructor(){
+
+			this.METHOD_SNOW = 'SNOW';
+			this.METHOD_ALPHA = 'ALPHA';
+			this.METHOD_DOT = 'DOT';
+			this.METHOD_GRAY = 'GRAY';
+			this.METHOD_CONTRAST = 'CONTRAST';
+
 			this.init_step_method = [ 
 				{
 					method: ''
 				}
 			];
 			let _sary_step_method_other = [
+				// {
+				// 	method: this.METHOD_SNOW
+				// }, 
+				// {
+				// 	method: this.METHOD_ALPHA
+				// },
 				{
-					method: 'SNOW'
+					method: this.METHOD_CONTRAST
+				}/*, 
+				{
+					method: this.METHOD_DOT
 				}, 
 				{
-					method: 'ALPHA'
-				}, 
-				{
-					method: 'DOT'
-				}, 
-				{
-					method: 'GRAY'
-				} 
+					method: this.METHOD_GRAY
+				} */
 			];
 
 			this.step_method = this.init_step_method.concat( _sary_step_method_other );
 		}
+
 		getStepMethod(){
 			return this.step_method || [] ;
 		}
+
 	}
 
 
