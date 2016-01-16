@@ -205,10 +205,6 @@
 				});
 		}
 
-		// listenAction(){
-
-		// }
-
 		painterRun( json, fn_painter_style ){
 			json = json || {} ;
 			let _me = this ;

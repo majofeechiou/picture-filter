@@ -5,7 +5,9 @@
 
 (function body (window) {
 
-	class Pfilter{
+	let Emitter = require('../../node_modules/component-emitter/index.js'); // 監聽事件
+
+	class MainImageGilter{
 
 		constructor( obj, json_size ){
 
@@ -33,8 +35,11 @@
 		}
 
 		// 抓原始圖片資料
-		setImageOriginData( str_bas64 ){
-			this.image_origin_data = str_bas64 ;
+		setImageInitData( str_bas64 ){
+			this.image_init_data = str_bas64 ;
+			emitter.emit('initData.changed', {
+				origin_data: str_bas64
+			});
 		}
 
 		// 得到用來產生版形的區塊
@@ -95,115 +100,91 @@
 			}
 		}
 
-		// paintStep( json_detail, fn_painter_style, callback ){
-		// 	json_detail = json_detail || {} ;
-		// 	let _me = this;
-		// 	if( _me.imageProcess===undefined ){
-		// 		delete _me.imageProcess;
-		// 	}
-		// 		_me.imageProcess = new ImageProcess( json_detail.data, fn_painter_style).then( function( response ){
-		// 			delete this;
-		// 			if( callback && (callback instanceof Function===true) ){
-		// 				callback( response );
-		// 			}
-		// 		});
-		// }
-
-		// painterRun( json, fn_painter_style ){
-		// 	json = json || {} ;
-		// 	let _me = this ;
-		// 	let _num_index = json.step || 0 ;
-		// 	let imageProcess = new ImageProcess( json.data, fn_painter_style).then( function( json_res ){
-
-		// 		delete this;
-
-		// 		if( json_res.success===true ){
-
-		// 			_me.defindEvent.createListen( 'image.data.changed.'+_num_index, {step: _num_index, origin_data:json.data, data:json_res.data} );
-
-		// 			_me.getMainSection().removeEventListener('image.data.changed.'+_num_index);
-		// 			_me.getMainSection().addEventListener('image.data.changed.'+_num_index, function( e ){
-		// 				console.log( '------', _num_index );
-		// 				if( _num_index<3 ){
-		// 					_me.paintStep( e.detail, fn_painter_style, function(){
-		// 						let _json_e_detail = e.detail || {} ;
-		// 						_json_e_detail.step = _json_e_detail.step+1;
-		// 						console.trace();
-		// 						_me.painterRun( _json_e_detail, fn_painter_style );
-		// 					}, false );
-		// 				}else if(_num_index===3){
-		// 					console.log('end');
-		// 					_me.paintInCanvas( e.detail );
-		// 				}
-
-		// 			});
-
-		// 		}
-
-		// 	}).then(function(){
-		// 		if( _num_index<=3 ){
-		// 			_me.defindEvent.dispatchEvent( 'image.data.changed.'+_num_index, _me.getMainSection() );
-		// 		}
-		// 	});
-		// }
-
-		// paintInCanvas( json ){
-		// 	json = json || {} ;
-		// 	let _me = this;
-		// 	let _obj_canvas_preview = _me.getObjCanvasPreview();
-		// 	let _obj_canvas_2d = _obj_canvas_preview.getContext("2d");
-		// 	// -- 以下改class控制
-		// 	if( _me._obj_img===undefined ){
-		// 		console.log('new Image()');
-		// 		_me._obj_img = new Image();
-		// 	    _me._obj_img.onload = function(){
-		// 			painterAction.drawImageCover( _obj_canvas_2d, _me._obj_img, 0, 0, _me.getPreviewSize().width, _me.getPreviewSize().height );
-		// 	    };
-		// 	}
-		// 	_me._obj_img.src = json.data ;
-		// }
-
 		uploadAction( scope_calss ){
 			let _me = this;
-			_me.onchange = function( e ){
+			_me.onchange = function( e ){ // 從頭更換圖片
 				let windowURL = window.URL || window.webkitURL;
 				let _str_image_data = windowURL.createObjectURL(this.files[0]);
-				console.log( '_str_image_data :: ', _str_image_data );
-				scope_calss.setImageOriginData( _str_image_data );
+				scope_calss.setImageInitData( _str_image_data );
 			}
 		}
 
-		// // 實際開始執行任務
-		// create(){
-		// 	let _me = this;
-			
-		// 	this.getObjUpload().onchange = function( e ){
-
-		// 		let windowURL = window.URL || window.webkitURL;
-		// 		let _str_image_data = windowURL.createObjectURL(this.files[0]);
-
-		// 		_me.setImageOriginData( _str_image_data );
-
-		// 		// let _fn_painter_style = painterStyle.snow;
-
-		// 		// let _json = {
-		// 		// 	step: 0,
-		// 		// 	data: _str_image_data
-		// 		// };
-
-		// 		// _me.painterRun( _json, _fn_painter_style );
-
-		// 	};
-		// }
-
 	}
 
-	window.Pfilter = Pfilter;
+	// 運算的方式
+	class ImageDataComputMethod{
+		constructor(){
+			let _me = this;
+
+			this.obj_canvas = document.createElement('canvas');
+			this.obj_canvas_2d = this.obj_canvas.getContext('2d');
+			console.log( 'this.obj_canvas :: ', this.obj_canvas );
+			console.log( 'this.obj_canvas_2d :: ', this.obj_canvas_2d );
+
+			this.obj_image = new Image();
+			this.obj_image.onload = function(){
+				let _num_width = this.width;
+				let _num_height = this.height;
+				_me.obj_canvas_2d.drawImage(this, 0, 0, _num_width, _num_height);
+
+				// Draw snowflakes.
+				for (let i = 0; i <= 500; i++) {
+					// Get random positions for flakes.
+					var x = Math.floor(Math.random() * _num_width);
+					var y = Math.floor(Math.random() * _num_height);
+
+					// Make the flakes white
+					_me.obj_canvas_2d.fillStyle = "white";
+
+					// Draw an individual flakes.
+					_me.obj_canvas_2d.beginPath();
+					_me.obj_canvas_2d.arc(x, y, 3, 0, Math.PI * 2, true);
+					_me.obj_canvas_2d.closePath();
+					_me.obj_canvas_2d.fill();
+				}
+
+				let _data_url = _me.obj_canvas.toDataURL();
+
+				emitter.emit('imageData.step.computed', {
+					origin_data: this.src,
+					data: _data_url
+				});
+
+			}
+		}
+		changeData( str_base64 ){
+			this.obj_image.src = str_base64;
+		}
+	}
+
+	// 利用事件的補捉，來記錄我們的圖片運算狀況
+	class ImageDataComputeProcess{
+		constructor(){
+			let _me = this;
+			this.step_data = [];
+			emitter.on('initData.changed', function(e){
+				_me.step_data = [];
+				let _json_data = arguments[0];
+				imageDataComputMethod.changeData( _json_data.origin_data );
+			});
+			emitter.on('imageData.step.computed', function(e){
+				let _json_data = arguments[0];
+				_me.step_data.push(_json_data);
+			});
+			emitter.emit('imageData.step.computed');
+		}
+	}
+
+	window.mainImageGilter = MainImageGilter; // 便於debug
+
+	let emitter = new Emitter;
+	let imageDataComputeProcess = new ImageDataComputeProcess;
+	let imageDataComputMethod = new ImageDataComputMethod;
 
 	let _obj_main = document.querySelectorAll('[data-majo="picture-filter"]');
 
-	let a = new Pfilter(_obj_main[0]);
-	let b = new Pfilter(_obj_main[1],{width: 450, height: 100});
+	let a = new MainImageGilter(_obj_main[0]);
+	let b = new MainImageGilter(_obj_main[1],{width: 450, height: 100});
 	
 
 })(window);
