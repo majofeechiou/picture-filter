@@ -77,11 +77,19 @@
 			let _obj_main = this.getMainSection();
 
 			if( _obj_main!==undefined ){
+
+				emitter.on('imageData.final.step.computed', function(e){
+					let _json_data = arguments[0];
+					console.log( '--------------- _json_data :: ', _json_data );
+				});
+
+				
 				this.uploadAction.call( _obj_upload, this );
 				this.addConst( this, 'OBJ_UPLOAD', _obj_upload );
 				this.addConst( this, 'OBJ_CANVAS', _obj_canvas );
 				_obj_main.appendChild(_obj_upload);
 				_obj_main.appendChild(_obj_canvas);
+
 				this.addConst( this, 'OBJ_CANVAS_PREVIEW', _obj_main.querySelectorAll('[data-obj="preview"]')[0] );
 			}
 
@@ -90,8 +98,8 @@
 		defaultAction( obj, json_size ){
 			this.initConst(this);
 			json_size = json_size || {} ;
-			json_size.width = (json_size.width>0)? json_size.width : 600 ;
-			json_size.height = (json_size.height>0)? json_size.height : 450 ;
+			json_size.width = (json_size.width>0)? json_size.width : 600 ; // 預覽圓片大小
+			json_size.height = (json_size.height>0)? json_size.height : 450 ; // 預覽圓片大小
 
 			if( obj.nodeType>=1 ){
 				this.addConst( this, 'MAIN_SECTION', obj );
@@ -126,6 +134,7 @@
 					_str_method = _json.painter_method;
 
 				if( _str_method==='SNOW' ){
+					console.log('SNOW');
 					_scope.methodSnow( _json );
 
 				}else if( _str_method==='DOT' ){
@@ -134,6 +143,7 @@
 
 				}else{
 					console.log('ooooother');
+					_scope.methodOrigin( _json );
 				}
 
 			});
@@ -144,13 +154,16 @@
 
 					let _num_width = this.width;
 					let _num_height = this.height;
+					console.log(_num_width, _num_height);
+					_scope.obj_canvas.width = _num_width ;
+					_scope.obj_canvas.height = _num_height ;
 					_scope.obj_canvas_2d.drawImage(this, 0, 0, _num_width, _num_height);
 
 					emitter.emit('imageData.step.success.loaded', {
 						origin_data: this.src,
 						painter_method: _scope.getPainterMethod(),
-						image_width: _num_width,
-						image_height: _num_height
+						image_origin_width: _num_width,
+						image_origin_height: _num_height
 					});
 
 				}else{
@@ -178,12 +191,23 @@
 			_scope.obj_image.src = str_base64;
 		}
 
+		// 傳來什麼，就如實地回傳
+		methodOrigin( json ){
+			let _scope = this;
+			let _data_url = _scope.obj_canvas.toDataURL();
+
+			emitter.emit('imageData.step.success.computed', {
+				origin_data: json.origin_data,
+				data: _data_url
+			});
+		}
+
 		// 雪花
 		// https://msdn.microsoft.com/zh-cn/library/gg589486(v=vs.85).aspx
 		methodSnow( json ){
 			let _scope = this;
-			let _num_width = json.image_width,
-				_num_height = json.image_height;
+			let _num_width = json.image_origin_width,
+				_num_height = json.image_origin_height;
 
 			let x,
 				y;
@@ -217,8 +241,8 @@
 		// https://msdn.microsoft.com/zh-cn/library/gg589486(v=vs.85).aspx
 		methodDot( json ){
 			let _scope = this;
-			let _num_width = json.image_width,
-				_num_height = json.image_height;
+			let _num_width = json.image_origin_width,
+				_num_height = json.image_origin_height;
 
 			let x,
 				y;
@@ -259,25 +283,53 @@
 			emitter.on('initData.changed', function(e){
 				_scope.step_data = [];
 				let _json_data = arguments[0];
-				imageDataComputMethod.changeData( 'SNOW', _json_data.origin_data );
+				imageDataComputMethod.changeData( '', _json_data.origin_data );
 			});
 			emitter.on('imageData.step.success.computed', function(e){
 				let _json_data = arguments[0];
 				if( _json_data && (typeof _json_data.origin_data === 'string') && (_json_data.origin_data!=='') ){
 					_scope.step_data.push(_json_data);
-					console.log( '_scope.step_data :: ', _scope.step_data );
-					if( _scope.step_data.length===1 && _scope.step_data[0] ){ // debug
-						imageDataComputMethod.changeData( 'DOT', _json_data.data );
+
+					let _num_step_length = _scope.step_data.length,
+						_sary_step_method = stepMethod.getStepMethod();
+					if( _num_step_length<_sary_step_method.length ){ 
+						// 先處理圖片
+						imageDataComputMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
+					}else{
+						// 圖片處理好了，我們現在要準備預覽
+						emitter.emit('imageData.final.step.computed', _json_data);
 					}
-					console.log( '_scope.step_data :: ', _scope.step_data );
+
 				}
 			});
 			emitter.emit('imageData.step.success.computed');
 		}
 	}
 
+
+	class StepMethod{
+		constructor(){
+			this.step_method = [ 
+				{
+					method: ''
+				}, 
+				{
+					method: 'SNOW'
+				}, 
+				{
+					method: 'DOT'
+				} 
+			]
+		}
+		getStepMethod(){
+			return this.step_method || [] ;
+		}
+	}
+
+
 	window.mainImageGilter = MainImageGilter; // 便於debug
 
+	let stepMethod = new StepMethod;
 	let emitter = new Emitter;
 	let imageDataComputeProcess = new ImageDataComputeProcess;
 	let imageDataComputMethod = new ImageDataComputMethod;
@@ -285,7 +337,7 @@
 	let _obj_main = document.querySelectorAll('[data-majo="picture-filter"]');
 
 	let a = new MainImageGilter(_obj_main[0]);
-	let b = new MainImageGilter(_obj_main[1],{width: 450, height: 100});
+	// let b = new MainImageGilter(_obj_main[1],{width: 450, height: 100});
 	
 
 })(window);
