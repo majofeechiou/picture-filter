@@ -170,10 +170,29 @@
 				emitter.on('stepMethod.show.adding', function(e){
 					let _json_data = arguments[0];
 					_scope.getObjMethodResult().insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
+
+					// 以下是實際執行新的圖片運算工作
+
+					let _sary_step_data = imageDataComputeProcess.getStepData();
+
+					if( (_sary_step_data instanceof Array === true) && _sary_step_data.length>0 ){
+
+						let _num_width = imageDataComputeMethod.getComputeWidth();
+						let _num_height = imageDataComputeMethod.getComputeHeight();
+
+						emitter.emit('imageData.step.success.loaded', {
+							origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
+							painter_method: _json_data.method,
+							image_origin_width: _num_width,
+							image_origin_height: _num_height
+						});
+
+					}
+
 				});
 				emitter.on('stepMethod.option.added', function(e){
 					let _json_data = arguments[0];
-					emitter.emit('stepMethod.show.adding', _json_data);
+					emitter.emit('stepMethod.show.adding', _json_data); // 要改了，先不傳這事件
 				});
 
 				_obj_main.appendChild(_obj_upload_section);
@@ -249,7 +268,7 @@
 	}
 
 	// 運算的方式
-	class ImageDataComputMethod{
+	class ImageDataComputeMethod{
 		constructor(){
 			let _scope = this;
 
@@ -295,6 +314,9 @@
 					_scope.obj_canvas.height = _num_height ;
 					_scope.obj_canvas_2d.drawImage(this, 0, 0, _num_width, _num_height);
 
+					_scope.setComputeWidth( _num_width );
+					_scope.setComputeHeight( _num_height );
+
 					emitter.emit('imageData.step.success.loaded', {
 						origin_data: this.src,
 						painter_method: _scope.getPainterMethod(),
@@ -314,6 +336,26 @@
 				});
 			}
 
+		}
+
+		// 圖片運算是用多大寬度運算出來的
+		setComputeWidth( num ){
+			this.compute_width = num || 0 ;
+		}
+
+		// 圖片運算是用多大高度運算出來的
+		setComputeHeight( num ){
+			this.compute_height = num || 0 ;
+		}
+
+		// 圖片運算是用多大寬度運算出來的
+		getComputeWidth(){
+			return this.compute_width;
+		}
+
+		// 圖片運算是用多大高度運算出來的
+		getComputeHeight(){
+			return this.compute_height;
 		}
 
 		getPainterMethod(){
@@ -518,7 +560,7 @@
 			emitter.on('initData.changed', function(e){
 				_scope.step_data = [];
 				let _json_data = arguments[0];
-				imageDataComputMethod.changeData( '', _json_data.origin_data );
+				imageDataComputeMethod.changeData( '', _json_data.origin_data );
 			});
 			emitter.on('imageData.step.success.computed', function(e){
 				let _json_data = arguments[0];
@@ -529,7 +571,7 @@
 						_sary_step_method = stepMethod.getStepMethod();
 					if( _num_step_length<_sary_step_method.length ){ 
 						// 先處理圖片
-						imageDataComputMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
+						imageDataComputeMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
 					}else{
 						// 圖片處理好了，我們現在要準備預覽
 						emitter.emit('imageData.final.step.computed', _json_data);
@@ -538,6 +580,9 @@
 				}
 			});
 			emitter.emit('imageData.step.success.computed');
+		}
+		getStepData(){
+			return this.step_data || [] ;
 		}
 	}
 
@@ -607,7 +652,7 @@
 	let stepMethod = new StepMethod;
 	let emitter = new Emitter;
 	let imageDataComputeProcess = new ImageDataComputeProcess;
-	let imageDataComputMethod = new ImageDataComputMethod;
+	let imageDataComputeMethod = new ImageDataComputeMethod;
 
 	let _obj_main = document.querySelectorAll('[data-majo="picture-filter"]');
 
