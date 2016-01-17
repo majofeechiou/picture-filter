@@ -164,8 +164,16 @@ function PictureDraw ( obj_main ) {
 
 				// 新增效果
 				emitter.on('stepMethod.show.adding', function(e){
+					// 新增顯示method的文字
 					let _json_data = arguments[0];
-					_scope.getObjMethodResult().insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
+					let _obj_result = document.createElement('span');
+					_obj_result.data = _obj_result.data || {} ;
+					_obj_result.data.method_id = _json_data.method_id ;
+					_obj_result.data.method = _json_data.method ;
+					_obj_result.insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
+					_scope.getObjMethodResult().appendChild(_obj_result);
+
+					_scope.methodDeleteBtnAction.call( _obj_result, _scope );
 
 					// 以下是實際執行新的圖片運算工作
 
@@ -178,7 +186,7 @@ function PictureDraw ( obj_main ) {
 
 						emitter.emit('imageData.step.success.loaded', {
 							origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
-							painter_method: _json_data.method
+							method: _json_data.method
 						});
 
 					}
@@ -186,7 +194,7 @@ function PictureDraw ( obj_main ) {
 				});
 				emitter.on('stepMethod.option.added', function(e){
 					let _json_data = arguments[0];
-					emitter.emit('stepMethod.show.adding', _json_data); // 要改了，先不傳這事件
+					emitter.emit('stepMethod.show.adding', _json_data); // 要改了，先不傳這事件?!
 				});
 
 				_obj_main.appendChild(_obj_upload_section);
@@ -243,19 +251,31 @@ function PictureDraw ( obj_main ) {
 			}
 		}
 
+		// 新增效果的按鈕
 		methodAddBtnAction( scope_calss ){
 			let _obj_self = this;
 			_obj_self.onclick = function( e ){
 				let _str_method_value = scope_calss.getObjMethodSelect().value;
-				console.log( '_str_method_value :: ', _str_method_value );
 				if( _str_method_value!=='' ){
 					stepMethod.pushStepMethod({
 						method: _str_method_value
 					});
-
 				}else{
 					console.log( '不應為空!!' );
 				}
+			}
+		}
+
+		// 刪除效果的按鈕
+		methodDeleteBtnAction( scope_calss ){
+			let _obj_self = this;
+			_obj_self.onclick = function( e ){
+				// debug
+				// 先直接發出刪除methid的事件，之後再來擴充
+				stepMethod.spliceStepMethod({
+					method: _obj_self.data.method,
+					method_id: _obj_self.data.method_id
+				});
 			}
 		}
 
@@ -299,9 +319,11 @@ function PictureDraw ( obj_main ) {
 
 			emitter.on('imageData.step.success.loaded', function(e){
 				let _json = arguments[0],
-					_str_method = _json.painter_method;
+					_str_method = _json.method;
 
 				console.log('METHOD :: ', _str_method);
+
+			// let _json_output = // ===================== fixed it ?
 
 				if( _str_method===stepMethod.METHOD_SNOW ){
 					_scope.methodSnow( _json );
@@ -339,7 +361,7 @@ function PictureDraw ( obj_main ) {
 
 					emitter.emit('imageData.step.success.loaded', {
 						origin_data: this.src,
-						painter_method: _scope.getPainterMethod()
+						method: _scope.getPainterMethod()
 					});
 
 				}else{
@@ -361,21 +383,24 @@ function PictureDraw ( obj_main ) {
 			return _scope.painter_method;
 		}
 
-		changeData( painter_method, str_base64 ){
+		changeData( str_painter_method, str_base64 ){
 			let _scope = this;
-			_scope.painter_method = painter_method;
+			_scope.painter_method = str_painter_method;
 			_scope.obj_image.src = str_base64;
 		}
 
 		// 傳來什麼，就如實地回傳
 		methodOrigin( json ){
 			let _scope = this;
-			let _data_url = _scope.obj_canvas.toDataURL();
+			// let _data_url = _scope.obj_canvas.toDataURL();
 
-			emitter.emit('imageData.step.success.computed', {
-				origin_data: json.origin_data,
-				data: _data_url
-			});
+			// emitter.emit('imageData.step.success.computed', {
+			// 	origin_data: json.origin_data,
+			// 	data: _data_url
+			// });
+
+			_scope.emitAfterMethod( json );
+
 		}
 
 		// 雪花
@@ -563,7 +588,7 @@ function PictureDraw ( obj_main ) {
 			emitter.on('imageData.step.success.computed', function(e){
 				let _json_data = arguments[0];
 				if( _json_data && (typeof _json_data.origin_data === 'string') && (_json_data.origin_data!=='') ){
-					_scope.step_data.push(_json_data);
+					_scope.pushStepData(_json_data);
 
 					let _num_step_length = _scope.step_data.length,
 						_sary_step_method = stepMethod.getStepMethod();
@@ -577,10 +602,27 @@ function PictureDraw ( obj_main ) {
 
 				}
 			});
-			emitter.emit('imageData.step.success.computed');
 		}
 		getStepData(){
 			return this.step_data || [] ;
+		}
+		pushStepData(json_data){
+			let _scope = this;
+
+			if( json_data.method_id===undefined ){
+				let _sary_step_data = JSON.parse(JSON.stringify( _scope.getStepData() )),
+					_num_step_data = _sary_step_data.length ;
+				console.log( '_num_step_data :: ', _num_step_data );
+				let _sary_step_method = JSON.parse(JSON.stringify( stepMethod.getStepMethod() )),
+					_num_step_method = _sary_step_method.length;
+				console.log( '_num_step_method :: ', _num_step_method );
+				if( _num_step_method>=_num_step_data ){ // 去step_method中的記錄中找來用
+					let _str_method_id = _sary_step_method[_num_step_data].method_id;
+					json_data.method_id = _str_method_id;
+				}
+			}
+
+			_scope.step_data.push(json_data) ;
 		}
 	}
 
@@ -600,7 +642,8 @@ function PictureDraw ( obj_main ) {
 
 			this.init_step_method = [ 
 				{
-					method: ''
+					method: '',
+					method_id: utils.createMethodId()
 				}
 			];
 			let _sary_step_method_other = [];
@@ -637,13 +680,32 @@ function PictureDraw ( obj_main ) {
 
 		pushStepMethod( json ){
 			if( json!==undefined ){
+				let _str_method_id = utils.createMethodId();
+				json.method_id = _str_method_id;
 				this.step_method.push( json );
 				emitter.emit('stepMethod.option.added', json);
 			}
 		}
 
+		spliceStepMethod( json ){
+			console.log( 1, this.step_method );
+			console.log( 2, imageDataComputeProcess.getStepData() );
+			console.log( 'json ::::: ', json, '==============' );
+			// if( json!==undefined ){
+			// 	this.step_method.push( json );
+			// 	emitter.emit('stepMethod.option.added', json);
+			// }
+		}
+
 	}
 
+	class Utils{
+		createMethodId(){
+			return Date.now()+'-'+Math.floor(Math.random()*100);
+		}
+	}
+
+	let utils = new Utils();
 	let stepMethod = new StepMethod;
 	let emitter = new Emitter;
 	let imageDataComputeProcess = new ImageDataComputeProcess;
