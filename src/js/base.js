@@ -65,6 +65,11 @@
 			return this.getConst(this).OBJ_CANVAS_PREVIEW;
 		}
 
+		// 得到Canvas預覽的區塊
+		getObjCanvasPreview2d(){
+			return this.getConst(this).OBJ_CANVAS_PREVIEW_2D;
+		}
+
 		// 得到Canvas預覽的區塊長寬
 		getPreviewSize(){
 			return this.getConst(this).PREVIEW_SIZE;
@@ -95,7 +100,12 @@
 			_obj_canvas_preview.width = _json_size.width;
 			_obj_canvas_preview.height = _json_size.height;
 			this.addConst( this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview );
+
 			_obj_canvas_section.appendChild(_obj_canvas_preview);
+
+			let _obj_canvas_2d = _obj_canvas_preview.getContext('2d');
+			this.addConst( this, 'OBJ_CANVAS_PREVIEW_2D', _obj_canvas_2d );
+
 			return _obj_canvas_section;
 		}
 
@@ -186,7 +196,8 @@
 				let _obj_image = new Image();
 				_obj_image.onload = function(e){
 					let _obj_canvas_preview = _scope.getObjCanvasPreview();
-					let _obj_canvas_2d = _obj_canvas_preview.getContext('2d');
+					let _obj_canvas_2d = _scope.getObjCanvasPreview2d();
+					_obj_canvas_2d.clearRect(0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
 					_obj_canvas_2d.drawImage(this, 0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
 				}
 
@@ -204,7 +215,8 @@
 			let _obj_self = this;
 			_obj_self.onload = function(e){
 				let _obj_canvas_preview = scope_calss.getObjCanvasPreview();
-				let _obj_canvas_2d = _obj_canvas_preview.getContext('2d');
+				let _obj_canvas_2d = scope_calss.getObjCanvasPreview2d();
+				_obj_canvas_2d.clearRect(0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
 				_obj_canvas_2d.drawImage(this, 0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
 			}
 		}
