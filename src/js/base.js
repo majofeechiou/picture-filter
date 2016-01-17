@@ -182,9 +182,7 @@
 
 						emitter.emit('imageData.step.success.loaded', {
 							origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
-							painter_method: _json_data.method,
-							image_origin_width: _num_width,
-							image_origin_height: _num_height
+							painter_method: _json_data.method
 						});
 
 					}
@@ -267,9 +265,35 @@
 
 	}
 
+	class ImageDataComputeSize{
+
+		// 圖片運算是用多大寬度運算出來的
+		setComputeWidth( num ){
+			this.compute_width = num || 0 ;
+		}
+
+		// 圖片運算是用多大高度運算出來的
+		setComputeHeight( num ){
+			this.compute_height = num || 0 ;
+		}
+
+		// 圖片運算是用多大寬度運算出來的
+		getComputeWidth(){
+			return this.compute_width;
+		}
+
+		// 圖片運算是用多大高度運算出來的
+		getComputeHeight(){
+			return this.compute_height;
+		}
+
+	}
+
 	// 運算的方式
-	class ImageDataComputeMethod{
+	class ImageDataComputeMethod extends ImageDataComputeSize{
 		constructor(){
+			super();
+			
 			let _scope = this;
 
 			_scope.obj_canvas = document.createElement('canvas');
@@ -314,14 +338,12 @@
 					_scope.obj_canvas.height = _num_height ;
 					_scope.obj_canvas_2d.drawImage(this, 0, 0, _num_width, _num_height);
 
-					_scope.setComputeWidth( _num_width );
-					_scope.setComputeHeight( _num_height );
+					_scope.setComputeWidth( _num_width ); // 在此先用圖片本身的長寬去做的
+					_scope.setComputeHeight( _num_height ); // 在此先用圖片本身的長寬去做的
 
 					emitter.emit('imageData.step.success.loaded', {
 						origin_data: this.src,
-						painter_method: _scope.getPainterMethod(),
-						image_origin_width: _num_width,
-						image_origin_height: _num_height
+						painter_method: _scope.getPainterMethod()
 					});
 
 				}else{
@@ -336,26 +358,6 @@
 				});
 			}
 
-		}
-
-		// 圖片運算是用多大寬度運算出來的
-		setComputeWidth( num ){
-			this.compute_width = num || 0 ;
-		}
-
-		// 圖片運算是用多大高度運算出來的
-		setComputeHeight( num ){
-			this.compute_height = num || 0 ;
-		}
-
-		// 圖片運算是用多大寬度運算出來的
-		getComputeWidth(){
-			return this.compute_width;
-		}
-
-		// 圖片運算是用多大高度運算出來的
-		getComputeHeight(){
-			return this.compute_height;
 		}
 
 		getPainterMethod(){
@@ -384,8 +386,8 @@
 		// https://msdn.microsoft.com/zh-cn/library/gg589486(v=vs.85).aspx
 		methodSnow( json ){
 			let _scope = this;
-			let _num_width = json.image_origin_width,
-				_num_height = json.image_origin_height;
+			let _num_width = _scope.getComputeWidth(),
+				_num_height = _scope.getComputeHeight();
 
 			let x,
 				y;
@@ -414,8 +416,8 @@
 		// https://msdn.microsoft.com/zh-cn/library/gg589486(v=vs.85).aspx
 		methodDot( json ){
 			let _scope = this;
-			let _num_width = json.image_origin_width,
-				_num_height = json.image_origin_height;
+			let _num_width = _scope.getComputeWidth(),
+				_num_height = _scope.getComputeHeight();
 
 			let x,
 				y;
@@ -445,8 +447,8 @@
 		methodAlpha( json ){
 			let _scope = this;
 
-			let _num_width = json.image_origin_width,
-				_num_height = json.image_origin_height;
+			let _num_width = _scope.getComputeWidth(),
+				_num_height = _scope.getComputeHeight();
 
 	        let _json_image_data = _scope.obj_canvas_2d.getImageData(0, 0, _num_width, _num_height);
 
@@ -471,8 +473,8 @@
 		methodGray( json ){
 			let _scope = this;
 
-			let _num_width = json.image_origin_width,
-				_num_height = json.image_origin_height;
+			let _num_width = _scope.getComputeWidth(),
+				_num_height = _scope.getComputeHeight();
 
 	        let _json_image_data = _scope.obj_canvas_2d.getImageData(0, 0, _num_width, _num_height);
 
@@ -520,8 +522,8 @@
 		methodContrast( json ){
 			let _scope = this;
 
-			let _num_width = json.image_origin_width,
-				_num_height = json.image_origin_height;
+			let _num_width = _scope.getComputeWidth(),
+				_num_height = _scope.getComputeHeight();
 
 	        let _json_image_data = _scope.obj_canvas_2d.getImageData(0, 0, _num_width, _num_height);
 
