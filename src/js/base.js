@@ -157,9 +157,13 @@
 				});
 
 				// 新增效果
-				emitter.on('method.option.adding', function(e){
+				emitter.on('stepMethod.show.adding', function(e){
 					let _json_data = arguments[0];
 					_scope.getObjMethodResult().insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
+				});
+				emitter.on('stepMethod.option.added', function(e){
+					let _json_data = arguments[0];
+					emitter.emit('stepMethod.show.adding', _json_data);
 				});
 
 				_obj_main.appendChild(_obj_upload_section);
@@ -216,14 +220,14 @@
 
 		methodAddBtnAction( scope_calss ){
 			let _obj_self = this;
-			console.log( '_obj_self :: ', _obj_self );
 			_obj_self.onclick = function( e ){
 				let _str_method_value = scope_calss.getObjMethodSelect().value;
 				console.log( '_str_method_value :: ', _str_method_value );
 				if( _str_method_value!=='' ){
-					emitter.emit('method.option.adding', {
+					stepMethod.pushStepMethod({
 						method: _str_method_value
 					});
+
 				}else{
 					console.log( '不應為空!!' );
 				}
@@ -544,23 +548,24 @@
 					method: ''
 				}
 			];
-			let _sary_step_method_other = [
-				// {
-				// 	method: this.METHOD_SNOW
-				// }, 
-				// {
-				// 	method: this.METHOD_ALPHA
-				// },
-				{
-					method: this.METHOD_CONTRAST
-				}/*, 
-				{
-					method: this.METHOD_DOT
-				}, 
-				{
-					method: this.METHOD_GRAY
-				} */
-			];
+			let _sary_step_method_other = [];
+			// let _sary_step_method_other = [
+			// 	{
+			// 		method: this.METHOD_SNOW
+			// 	}, 
+			// 	{
+			// 		method: this.METHOD_ALPHA
+			// 	},
+			// 	{
+			// 		method: this.METHOD_CONTRAST
+			// 	}, 
+			// 	{
+			// 		method: this.METHOD_DOT
+			// 	}, 
+			// 	{
+			// 		method: this.METHOD_GRAY
+			// 	} 
+			// ];
 
 			this.step_method = this.init_step_method.concat( _sary_step_method_other );
 		}
@@ -572,6 +577,13 @@
 		getConstNameByEn( str ){
 			if( (typeof str === 'string') && (str!=='') ){
 				return this['METHOD_'+str+'_NAME'];
+			}
+		}
+
+		pushStepMethod( json ){
+			if( json!==undefined ){
+				this.step_method.push( json );
+				emitter.emit('stepMethod.option.added', json);
 			}
 		}
 
