@@ -50,6 +50,16 @@
 			return this.getConst(this).OBJ_IMAGE_PREVIEW;
 		}
 
+		// 效果選項的元件
+		getObjMethodSelect(){
+			return this.getConst(this).OBJ_METHOD_SELECT;
+		}
+
+		// 選出來什麼效果選項的元件
+		getObjMethodResult(){
+			return this.getConst(this).OBJ_METHOD_RESULT;
+		}
+
 		// 得到Canvas預覽的區塊
 		getObjCanvasPreview(){
 			return this.getConst(this).OBJ_CANVAS_PREVIEW;
@@ -65,38 +75,96 @@
 			return this.getConst(this).OBJ_UPLOAD;
 		}
 
-		// 用dom去產生頁面上的排版
-		makeTempate(){
-
-			let _scope = this;
-
+		// 上傳檔案
+		returnUploadSection(){
+			let _obj_upload_section 	= document.createElement('div');
 			let _obj_upload 	= document.createElement('input');
 			_obj_upload.type	= "file";
+			this.uploadAction.call( _obj_upload, this );
+			this.addConst( this, 'OBJ_UPLOAD', _obj_upload );
+			_obj_upload_section.appendChild(_obj_upload);
+			return _obj_upload_section;
+		}
 
+		// 預覽圖片
+		returnCanvasSection(){
+			let _obj_canvas_section 	= document.createElement('div');
 			let _json_size  = this.getPreviewSize(),
 				_obj_canvas_preview = document.createElement( 'canvas' );
 			_obj_canvas_preview.setAttribute('data-obj','preview');
 			_obj_canvas_preview.width = _json_size.width;
 			_obj_canvas_preview.height = _json_size.height;
+			this.addConst( this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview );
+			_obj_canvas_section.appendChild(_obj_canvas_preview);
+			return _obj_canvas_section;
+		}
+
+		// 新增效果
+		returnMethodSection(){
+			let _obj_method_section = document.createElement('div');
+
+			// 選出了哪些效果
+			let _obj_method_result = document.createElement('span');
+			_obj_method_section.appendChild(_obj_method_result);
+
+			// 下拉式選單
+			let _obj_method_select = document.createElement('select');
+			_obj_method_select.name = 'method';
+			let _str_method_select = '';
+			_str_method_select += '<option value="">---請選擇---</option>';
+			_str_method_select += '<option value="'+stepMethod.METHOD_SNOW+'">'+stepMethod.METHOD_SNOW_NAME+'</option>';
+			_str_method_select += '<option value="'+stepMethod.METHOD_ALPHA+'">'+stepMethod.METHOD_ALPHA_NAME+'</option>';
+			_str_method_select += '<option value="'+stepMethod.METHOD_DOT+'">'+stepMethod.METHOD_DOT_NAME+'</option>';
+			_str_method_select += '<option value="'+stepMethod.METHOD_GRAY+'">'+stepMethod.METHOD_GRAY_NAME+'</option>';
+			_str_method_select += '<option value="'+stepMethod.METHOD_CONTRAST+'">'+stepMethod.METHOD_CONTRAST_NAME+'</option>';
+			_obj_method_select.insertAdjacentHTML('afterbegin',_str_method_select);
+
+			// 新增按鈕
+			let _obj_method_button = document.createElement('button');
+			_obj_method_button.innerText = '新增效果';
+			this.methodAddBtnAction.call( _obj_method_button, this );
+			_obj_method_section.appendChild(_obj_method_select);
+			_obj_method_section.appendChild(_obj_method_button);
+
+			this.addConst( this, 'OBJ_METHOD_SECTION', _obj_method_section );
+			this.addConst( this, 'OBJ_METHOD_RESULT', _obj_method_result );
+			this.addConst( this, 'OBJ_METHOD_SELECT', _obj_method_select );
+			return _obj_method_section;
+		}
+
+		// 用dom去產生頁面上的排版
+		makeTempate(){
+
+			let _scope = this;
 
 			let _obj_main = this.getMainSection();
 
 			if( _obj_main!==undefined ){
 
+				// 上傳檔案
+				let _obj_upload_section = this.returnUploadSection();
+
+				// 預覽圖片
+				let _obj_canvas_section = this.returnCanvasSection();
+
+				// 新增效果
+				let _obj_method_section = this.returnMethodSection();
+
+				// 用完運算結束後，我們要用出預覽圖
 				emitter.on('imageData.final.step.computed', function(e){
 					let _json_data = arguments[0];
 					_scope.getObjImagePreview().src = _json_data.data;
-
 				});
 
-				this.uploadAction.call( _obj_upload, this );
-				this.addConst( this, 'OBJ_UPLOAD', _obj_upload );
-				// this.addConst( this, 'OBJ_CANVAS', _obj_canvas_preview );
-				_obj_main.appendChild(_obj_upload);
-				_obj_main.appendChild(_obj_canvas_preview);
+				// 新增效果
+				emitter.on('method.option.adding', function(e){
+					let _json_data = arguments[0];
+					_scope.getObjMethodResult().insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
+				});
 
-				// this.addConst( this, 'OBJ_CANVAS_PREVIEW', _obj_main.querySelectorAll('[data-obj="preview"]')[0] );
-				this.addConst( this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview );
+				_obj_main.appendChild(_obj_upload_section);
+				_obj_main.appendChild(_obj_method_section);
+				_obj_main.appendChild(_obj_canvas_section);
 
 			}
 
@@ -146,6 +214,22 @@
 			}
 		}
 
+		methodAddBtnAction( scope_calss ){
+			let _obj_self = this;
+			console.log( '_obj_self :: ', _obj_self );
+			_obj_self.onclick = function( e ){
+				let _str_method_value = scope_calss.getObjMethodSelect().value;
+				console.log( '_str_method_value :: ', _str_method_value );
+				if( _str_method_value!=='' ){
+					emitter.emit('method.option.adding', {
+						method: _str_method_value
+					});
+				}else{
+					console.log( '不應為空!!' );
+				}
+			}
+		}
+
 	}
 
 	// 運算的方式
@@ -162,28 +246,24 @@
 				let _json = arguments[0],
 					_str_method = _json.painter_method;
 
-				if( _str_method==='SNOW' ){
-					console.log('SNOW');
+				console.log('METHOD :: ', _str_method);
+
+				if( _str_method===stepMethod.METHOD_SNOW ){
 					_scope.methodSnow( _json );
 
-				}else if( _str_method==='DOT' ){
-					console.log('DOT');
+				}else if( _str_method===stepMethod.METHOD_DOT ){
 					_scope.methodDot( _json );
 
-				}else if( _str_method==='ALPHA' ){
-					console.log('ALPHA');
+				}else if( _str_method===stepMethod.METHOD_ALPHA ){
 					_scope.methodAlpha( _json );
 
-				}else if( _str_method==='GRAY' ){
-					console.log('GRAY');
+				}else if( _str_method===stepMethod.METHOD_GRAY ){
 					_scope.methodGray( _json );
 
-				}else if( _str_method==='CONTRAST' ){
-					console.log('CONTRAST');
+				}else if( _str_method===stepMethod.METHOD_CONTRAST ){
 					_scope.methodContrast( _json );
 
 				}else{
-					console.log('ooooother');
 					_scope.methodOrigin( _json );
 				}
 
@@ -453,6 +533,11 @@
 			this.METHOD_DOT = 'DOT';
 			this.METHOD_GRAY = 'GRAY';
 			this.METHOD_CONTRAST = 'CONTRAST';
+			this.METHOD_SNOW_NAME = '雪花';
+			this.METHOD_ALPHA_NAME = '透明';
+			this.METHOD_DOT_NAME = '黑點';
+			this.METHOD_GRAY_NAME = '灰階';
+			this.METHOD_CONTRAST_NAME = '對比';
 
 			this.init_step_method = [ 
 				{
@@ -482,6 +567,12 @@
 
 		getStepMethod(){
 			return this.step_method || [] ;
+		}
+
+		getConstNameByEn( str ){
+			if( (typeof str === 'string') && (str!=='') ){
+				return this['METHOD_'+str+'_NAME'];
+			}
 		}
 
 	}
