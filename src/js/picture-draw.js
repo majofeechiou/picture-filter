@@ -170,6 +170,7 @@ function PictureDraw ( obj_main ) {
 					_obj_result.data = _obj_result.data || {} ;
 					_obj_result.data.method_id = _json_data.method_id ;
 					_obj_result.data.method = _json_data.method ;
+					_obj_result.setAttribute('data-method-id',_json_data.method_id);
 					_obj_result.insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
 					_scope.getObjMethodResult().appendChild(_obj_result);
 
@@ -192,9 +193,33 @@ function PictureDraw ( obj_main ) {
 					}
 
 				});
+				emitter.on('stepMethod.show.deleting', function(e){
+					let _json_data = arguments[0];
+					console.log('******* 要在這處理一些圖片的運算工作 *******');
+					let _sary_step_data = imageDataComputeProcess.getStepData();
+
+					if( (_sary_step_data instanceof Array === true) && _sary_step_data.length>0 ){
+
+						// let _num_width = imageDataComputeMethod.getComputeWidth();
+						// let _num_height = imageDataComputeMethod.getComputeHeight();
+
+						// emitter.emit('imageData.step.success.loaded', {
+						// 	origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
+						// 	method: _json_data.method
+						// });
+
+						_scope.getObjMethodResult().removeChild(_json_data.method_btn);
+
+					}
+				});
 				emitter.on('stepMethod.option.added', function(e){
 					let _json_data = arguments[0];
 					emitter.emit('stepMethod.show.adding', _json_data); // 要改了，先不傳這事件?!
+				});
+				emitter.on('stepMethod.option.deleted', function(e){
+					console.log('stepMethod.option.deleted');
+					let _json_data = arguments[0];
+					emitter.emit('stepMethod.show.deleting', _json_data); // 要改了，先不傳這事件?!
 				});
 
 				_obj_main.appendChild(_obj_upload_section);
@@ -271,10 +296,11 @@ function PictureDraw ( obj_main ) {
 			let _obj_self = this;
 			_obj_self.onclick = function( e ){
 				// debug
-				// 先直接發出刪除methid的事件，之後再來擴充
+				// 先直接發出刪除methodid的事件，之後再來擴充
 				stepMethod.spliceStepMethod({
 					method: _obj_self.data.method,
-					method_id: _obj_self.data.method_id
+					method_id: _obj_self.data.method_id,
+					method_btn:this
 				});
 			}
 		}
@@ -688,13 +714,19 @@ function PictureDraw ( obj_main ) {
 		}
 
 		spliceStepMethod( json ){
-			console.log( 1, this.step_method );
-			console.log( 2, imageDataComputeProcess.getStepData() );
-			console.log( 'json ::::: ', json, '==============' );
-			// if( json!==undefined ){
-			// 	this.step_method.push( json );
-			// 	emitter.emit('stepMethod.option.added', json);
-			// }
+			if( json!==undefined && ( (typeof json.method_id === 'string') && json.method_id!=='' ) ){
+				let _num_index;
+				for( let i=0;i<this.step_method.length;i++ ){
+					if( this.step_method[i].method_id===json.method_id ){
+						_num_index = i;
+						break;
+					}
+				}
+				if( _num_index>=0 ){
+					this.step_method.splice(_num_index,1);
+					emitter.emit('stepMethod.option.deleted', json);
+				}
+			}
 		}
 
 	}

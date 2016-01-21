@@ -3,7 +3,7 @@
 // 預覽圖（固定某大小做為預覽圖）
 // 送給php產生圖檔，以進一步存下新的圖檔
 
-(function body (window) {
+(function body () {
 
 	let PictureDraw = require('./picture-draw');
 
@@ -12,4 +12,4 @@
 	new PictureDraw(_obj_main[0]);
 	new PictureDraw(_obj_main[1],{width: 250, height: 100}); 
 
-})(window);
+})();
