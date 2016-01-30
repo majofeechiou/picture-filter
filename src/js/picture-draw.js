@@ -202,20 +202,11 @@ function PictureDraw ( obj_main, json_size ) {
 
 					if( (_sary_step_data instanceof Array === true) && _sary_step_data.length>0 ){
 
-								// let _num_width = imageDataComputeMethod.getComputeWidth();
-								// let _num_height = imageDataComputeMethod.getComputeHeight();
-
-								// emitter.emit('imageData.step.success.loaded', {
-								// 	origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
-								// 	method: _json_data.method
-								// });
-
 						let _num_step_data = _sary_step_data.length;
 
 						let _sary_new_step_data = [];
 
 						for( let i=0; i<_num_step_data; i++ ){
-							console.log( '----i', i );
 							if( _sary_step_data[i].method_id===_json_data.method_id ){
 								break;
 							}else{
@@ -223,66 +214,10 @@ function PictureDraw ( obj_main, json_size ) {
 							}
 						}
 
-						console.log( '_sary_new_step_data :: ', _sary_new_step_data );
-						console.log( 'stepMethod.getStepMethod() :: ', stepMethod.getStepMethod() );
-
 						let _num_new_step_data_length = _sary_new_step_data.length;
 
 						if( _num_new_step_data_length<_sary_step_data.length ){
-							// console.log('********** 改成emiiter出去來處理會更好!! **********');
 							imageDataComputeProcess.setStepData( _sary_new_step_data );
-
-								// setTimeout(function(){
-
-								// 	let _sary_step_method = stepMethod.getStepMethod();
-								// 	if( _sary_step_method.length>_num_new_step_data_length ){
-
-								// 		console.log('*********************在cut資料後，如何進行後面的運算動作，並用出預覽來*********************');
-
-								// 		let _json_next_step = _sary_step_method[_num_new_step_data_length];
-
-								// 		// let _json = {
-								// 		// 	origin_data: _sary_new_step_data[(_num_new_step_data_length-1)].data, // 目前得到的最後一次運算結果
-								// 		// 	method: _json_next_step.method,
-								// 		// 	method_id: _json_next_step.method_id
-								// 		// };
-
-								// 		// console.log('_sary_new_step_data :: ', _sary_new_step_data);
-								// 		// console.log('_json :: ', _json);
-								// 		// console.log('imageDataComputeProcess.getStepData() :: ', imageDataComputeProcess.getStepData());
-
-								// 		// emitter.emit('imageData.step.success.loaded', _json);
-
-								// 		// console.log( '_num_new_step_data_length :: ', _num_new_step_data_length );
-								// 		console.log( 'c :: ', _sary_new_step_data.length, _sary_new_step_data );
-								// 		console.log( 'a :: ', _sary_new_step_data[(_num_new_step_data_length-1)] );
-								// 		// console.log( 'b :: ', _json_next_step );
-								// 		console.log( '_json_data :: ', _json_data, '.........................................' );
-
-								// 		// 要改?!
-								// 		setTimeout(function(){
-								// 			emitter.emit('imageData.step.success.loaded', {
-								// 				origin_data: _sary_new_step_data[(_num_new_step_data_length-1)].data,
-								// 				method: _json_next_step.method,
-								// 				method_id: _json_next_step.method_id
-								// 			});
-								// 		},1000);
-
-
-								// 					// NONONONO!!
-								// 					// emitter.emit('imageData.step.success.computed', {
-								// 					// 	origin_data: _sary_new_step_data[(_num_new_step_data_length-1)].origin_data,
-								// 					// 	data: _sary_new_step_data[(_num_new_step_data_length-1)].data
-								// 					// });
-
-								// 	}else if( _sary_step_method.length===_num_new_step_data_length ){
-								// 		console.log('end here !!!');
-
-								// 		// eData.step.success.compu
-								// 	}
-
-								// },1000);
-
 						}
 	
 					}
@@ -295,7 +230,6 @@ function PictureDraw ( obj_main, json_size ) {
 					emitter.emit('stepMethod.show.adding', _json_data); // 要改了，先不傳這事件?!
 				});
 				emitter.on('stepMethod.option.deleted', function(e){
-					console.log('stepMethod.option.deleted');
 					let _json_data = arguments[0];
 					emitter.emit('stepMethod.show.deleting', _json_data); // 要改了，先不傳這事件?!
 				});
@@ -585,7 +519,8 @@ function PictureDraw ( obj_main, json_size ) {
 	          // Third bytes are blue bytes.
 	          // Fourth bytes are alpha bytes
 	          // Test of alpha channel at 50%.
-	          _json_image_data.data[i + 3] = 128;
+	          // _json_image_data.data[i + 3] = 128;
+	          _json_image_data.data[i + 3] = _json_image_data.data[i + 3]*0.5;
 	        }
 			_scope.obj_canvas_2d.putImageData(_json_image_data, 0, 0);
 
@@ -703,17 +638,6 @@ function PictureDraw ( obj_main, json_size ) {
 				if( _json_data && (typeof _json_data.origin_data === 'string') && (_json_data.origin_data!=='') ){
 					_scope.pushStepData(_json_data);
 
-					let _num_step_length = _scope.step_data.length,
-						_sary_step_method = stepMethod.getStepMethod();
-					if( _num_step_length<_sary_step_method.length ){ 
-						// 先處理圖片
-						imageDataComputeMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
-					}else{
-						// 圖片處理好了，我們現在要準備預覽
-						emitter.emit('imageData.final.step.computed', _json_data);
-						console.log('******************* 預覽圖片!! *******************');
-					}
-
 				}
 			});
 		}
@@ -721,51 +645,17 @@ function PictureDraw ( obj_main, json_size ) {
 			return this.step_data || [] ;
 		}
 		setStepData( sary ){
+			let _scope = this;
+
 			sary = sary || [] ;
 
 			let _sary = JSON.parse( JSON.stringify( sary ) );
 
-			console.log( '_sary :: ', _sary );
-
 			this.step_data = _sary ;
 
-			let _sary_method = JSON.parse( JSON.stringify( stepMethod.getStepMethod() ) );
-
-			console.log( '=====', _sary_method.length, _sary_method );
-			if( _sary_method.length>_sary.length ){
-				let _json_next_step = _sary_method[_sary.length];
-
-				// console.log( '_json_next_step :: ', _json_next_step );
-
-				// let _json_emit = {
-				// 	origin_data: _sary[(_sary.length-1)].data,
-				// 	method: _json_next_step.method /* ,
-				// 	method_id: _json_next_step.method_id */
-				// };
-
-				// console.log( '_json_emit :: ', _json_emit );
-
-				imageDataComputeMethod.changeData( _json_next_step.method, _sary[(_sary.length-1)].data );
-
-
-					// emitter.emit('imageData.step.success.loaded', {
-					// 	origin_data: this.src,
-					// 	method: _scope.getPainterMethod()
-					// });
-
-				// emitter.emit('imageData.step.success.loaded', _json_emit);
-				// emitter.emit('imageData.step.success.computed', _json_emit); // NONONONONO
-
-			}else if( _sary_method.length===_sary.length ){
-				console.log('end here !!');
-
-				let _json_data = _sary[(_sary.length-1)];
-
-				// 圖片處理好了，我們現在要準備預覽
-				emitter.emit('imageData.final.step.computed', _json_data);
-				console.log('******************* 預覽圖片!! *******************');
-
-			}
+			setTimeout(function(){
+				_scope.runningData();
+			},1);
 
 		}
 		pushStepData(json_data){
@@ -774,10 +664,8 @@ function PictureDraw ( obj_main, json_size ) {
 			if( json_data.method_id===undefined ){
 				let _sary_step_data = JSON.parse(JSON.stringify( _scope.getStepData() )),
 					_num_step_data = _sary_step_data.length ;
-				console.log( '_num_step_data :: ', _num_step_data );
 				let _sary_step_method = JSON.parse(JSON.stringify( stepMethod.getStepMethod() )),
 					_num_step_method = _sary_step_method.length;
-				console.log( '_num_step_method :: ', _num_step_method );
 				if( _num_step_method>=_num_step_data ){ // 去step_method中的記錄中找來用
 					let _str_method_id = _sary_step_method[_num_step_data].method_id;
 					json_data.method_id = _str_method_id;
@@ -786,6 +674,25 @@ function PictureDraw ( obj_main, json_size ) {
 
 			_scope.step_data.push(json_data) ;
 
+			setTimeout(function(){
+				_scope.runningData();
+			},1);
+
+		}
+		runningData(){
+			let _scope = this;
+			let _num_step_length = _scope.step_data.length,
+				_sary_step_method = stepMethod.getStepMethod();
+			let _sary_step_data = _scope.getStepData(),
+				_json_data = _sary_step_data[_sary_step_data.length-1];
+			if( _num_step_length<_sary_step_method.length ){ 
+				// 先處理圖片
+				imageDataComputeMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
+			}else{
+				// 圖片處理好了，我們現在要準備預覽
+				emitter.emit('imageData.final.step.computed', _json_data);
+				console.log('******************* 預覽圖片!! *******************');
+			}
 		}
 	}
 
@@ -878,9 +785,6 @@ function PictureDraw ( obj_main, json_size ) {
 	let emitter = new Emitter;
 	let imageDataComputeProcess = new ImageDataComputeProcess;
 	let imageDataComputeMethod = new ImageDataComputeMethod;
-
-			// window.methodDetail = stepMethod.getStepMethod() ;
-			// window.stepData = imageDataComputeProcess.step_data ;
 
 	new MainImageFilter( obj_main, json_size );
 

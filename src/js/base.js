@@ -9,7 +9,7 @@
 
 	let _obj_main = document.querySelectorAll('[data-majo="picture-filter"]');
 	
-	new PictureDraw(_obj_main[0], {});
-	// new PictureDraw(_obj_main[1],{width: 250, height: 100}); 
+	new PictureDraw( _obj_main[0], {} );
+	new PictureDraw( _obj_main[1], {width: 250, height: 100} ); 
 
 })();
