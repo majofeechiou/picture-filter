@@ -5,6 +5,46 @@ function PictureDraw ( obj_main, json_size ) {
 
 	let Emitter = require('../../node_modules/component-emitter/index.js'); // 監聽事件
 
+	class Utils{
+		static createMethodId(){
+			return Date.now()+'-'+Math.floor(Math.random()*100);
+		}
+	}
+
+	class Settings {
+
+		static METHOD_SNOW = 'SNOW';
+		static METHOD_SNOW_NAME = '雪花';
+
+		static METHOD_DOT = 'DOT';
+		static METHOD_DOT_NAME = '黑點';
+
+		static METHOD_ALPHA = 'ALPHA';
+		static METHOD_ALPHA_NAME = '透明';
+
+		static METHOD_GRAY = 'GRAY';
+		static METHOD_GRAY_NAME = '灰階';
+
+		static METHOD_BRIGHTNESS = 'BRIGHTNESS';
+		static METHOD_BRIGHTNESS_NAME = '亮度';
+
+		static METHOD_CONTRAST = 'CONTRAST';
+		static METHOD_CONTRAST_NAME = '對比';
+
+		static METHOD_SATURATE = 'SATURATE';
+		static METHOD_SATURATE_NAME = '彩度';
+
+		static METHOD_HUE_ROTATE = 'HUE_ROTATE';
+		static METHOD_HUE_ROTATE_NAME = '色相轉換';
+
+		static METHOD_INVERT = 'INVERT';
+		static METHOD_INVERT_NAME = '負片';
+
+		static METHOD_SEPIA = 'SEPIA';
+		static METHOD_SEPIA_NAME = '復古';
+
+	};
+
 	class MainImageFilter{
 
 		constructor( obj, json_size ){
@@ -120,11 +160,11 @@ function PictureDraw ( obj_main, json_size ) {
 			_obj_method_select.name = 'method';
 			let _str_method_select = '';
 			_str_method_select += '<option value="">---請選擇---</option>';
-			_str_method_select += '<option value="'+stepMethod.METHOD_SNOW+'">'+stepMethod.METHOD_SNOW_NAME+'</option>';
-			_str_method_select += '<option value="'+stepMethod.METHOD_ALPHA+'">'+stepMethod.METHOD_ALPHA_NAME+'</option>';
-			_str_method_select += '<option value="'+stepMethod.METHOD_DOT+'">'+stepMethod.METHOD_DOT_NAME+'</option>';
-			_str_method_select += '<option value="'+stepMethod.METHOD_GRAY+'">'+stepMethod.METHOD_GRAY_NAME+'</option>';
-			_str_method_select += '<option value="'+stepMethod.METHOD_CONTRAST+'">'+stepMethod.METHOD_CONTRAST_NAME+'</option>';
+			_str_method_select += '<option value="'+Settings.METHOD_SNOW+'">'+Settings.METHOD_SNOW_NAME+'</option>';
+			_str_method_select += '<option value="'+Settings.METHOD_ALPHA+'">'+Settings.METHOD_ALPHA_NAME+'</option>';
+			_str_method_select += '<option value="'+Settings.METHOD_DOT+'">'+Settings.METHOD_DOT_NAME+'</option>';
+			_str_method_select += '<option value="'+Settings.METHOD_GRAY+'">'+Settings.METHOD_GRAY_NAME+'</option>';
+			_str_method_select += '<option value="'+Settings.METHOD_CONTRAST+'">'+Settings.METHOD_CONTRAST_NAME+'</option>';
 			_obj_method_select.insertAdjacentHTML('afterbegin',_str_method_select);
 
 			// 新增按鈕
@@ -157,82 +197,6 @@ function PictureDraw ( obj_main, json_size ) {
 
 				// 新增效果
 				let _obj_method_section = this.returnMethodSection();
-
-				// 用完運算結束後，我們要用出預覽圖
-				emitter.on('imageData.final.step.computed', function(e){
-					let _json_data = arguments[0];
-					_scope.getObjImagePreview().src = _json_data.data;
-				});
-
-				// 新增效果
-				emitter.on('stepMethod.show.adding', function(e){
-					// 新增顯示method的文字
-					let _json_data = arguments[0];
-					let _obj_result = document.createElement('span');
-					_obj_result.style.marginRight = '20px' ;
-					_obj_result.data = _obj_result.data || {} ;
-					_obj_result.data.method_id = _json_data.method_id ;
-					_obj_result.data.method = _json_data.method ;
-					_obj_result.setAttribute('data-method-id',_json_data.method_id);
-					_obj_result.insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
-					_scope.getObjMethodResult().appendChild(_obj_result);
-
-					_scope.methodDeleteBtnAction.call( _obj_result, _scope );
-
-					// 以下是實際執行新的圖片運算工作
-
-					let _sary_step_data = imageDataComputeProcess.getStepData();
-
-					if( (_sary_step_data instanceof Array === true) && _sary_step_data.length>0 ){
-
-						let _num_width = imageDataComputeMethod.getComputeWidth();
-						let _num_height = imageDataComputeMethod.getComputeHeight();
-
-						emitter.emit('imageData.step.success.loaded', {
-							origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
-							method: _json_data.method
-						});
-
-					}
-
-				});
-				emitter.on('stepMethod.show.deleting', function(e){
-					let _json_data = arguments[0];
-					let _sary_step_data = imageDataComputeProcess.getStepData();
-
-					if( (_sary_step_data instanceof Array === true) && _sary_step_data.length>0 ){
-
-						let _num_step_data = _sary_step_data.length;
-
-						let _sary_new_step_data = [];
-
-						for( let i=0; i<_num_step_data; i++ ){
-							if( _sary_step_data[i].method_id===_json_data.method_id ){
-								break;
-							}else{
-								_sary_new_step_data.push( _sary_step_data[i] );
-							}
-						}
-
-						let _num_new_step_data_length = _sary_new_step_data.length;
-
-						if( _num_new_step_data_length<_sary_step_data.length ){
-							imageDataComputeProcess.setStepData( _sary_new_step_data );
-						}
-	
-					}
-
-					_scope.getObjMethodResult().removeChild(_json_data.method_btn);
-
-				});
-				emitter.on('stepMethod.option.added', function(e){
-					let _json_data = arguments[0];
-					emitter.emit('stepMethod.show.adding', _json_data); // 要改了，先不傳這事件?!
-				});
-				emitter.on('stepMethod.option.deleted', function(e){
-					let _json_data = arguments[0];
-					emitter.emit('stepMethod.show.deleting', _json_data); // 要改了，先不傳這事件?!
-				});
 
 				_obj_main.appendChild(_obj_upload_section);
 				_obj_main.appendChild(_obj_method_section);
@@ -294,7 +258,7 @@ function PictureDraw ( obj_main, json_size ) {
 			_obj_self.onclick = function( e ){
 				let _str_method_value = scope_calss.getObjMethodSelect().value;
 				if( _str_method_value!=='' ){
-					stepMethod.pushStepMethod({
+					emitter.emit('step.method.pushing',{
 						method: _str_method_value
 					});
 				}else{
@@ -307,9 +271,8 @@ function PictureDraw ( obj_main, json_size ) {
 		methodDeleteBtnAction( scope_calss ){
 			let _obj_self = this;
 			_obj_self.onclick = function( e ){
-				// debug
 				// 先直接發出刪除methodid的事件，之後再來擴充
-				stepMethod.spliceStepMethod({
+				emitter.emit('step.method.splicing',{
 					method: _obj_self.data.method,
 					method_id: _obj_self.data.method_id,
 					method_btn:this
@@ -363,19 +326,19 @@ function PictureDraw ( obj_main, json_size ) {
 
 			// let _json_output = // ===================== fixed it ?
 
-				if( _str_method===stepMethod.METHOD_SNOW ){
+				if( _str_method===Settings.METHOD_SNOW ){
 					_scope.methodSnow( _json );
 
-				}else if( _str_method===stepMethod.METHOD_DOT ){
+				}else if( _str_method===Settings.METHOD_DOT ){
 					_scope.methodDot( _json );
 
-				}else if( _str_method===stepMethod.METHOD_ALPHA ){
+				}else if( _str_method===Settings.METHOD_ALPHA ){
 					_scope.methodAlpha( _json );
 
-				}else if( _str_method===stepMethod.METHOD_GRAY ){
+				}else if( _str_method===Settings.METHOD_GRAY ){
 					_scope.methodGray( _json );
 
-				}else if( _str_method===stepMethod.METHOD_CONTRAST ){
+				}else if( _str_method===Settings.METHOD_CONTRAST ){
 					_scope.methodContrast( _json );
 
 				}else{
@@ -699,41 +662,13 @@ function PictureDraw ( obj_main, json_size ) {
 	class StepMethod{
 		constructor(){
 
-			this.METHOD_SNOW = 'SNOW';
-			this.METHOD_ALPHA = 'ALPHA';
-			this.METHOD_DOT = 'DOT';
-			this.METHOD_GRAY = 'GRAY';
-			this.METHOD_CONTRAST = 'CONTRAST';
-			this.METHOD_SNOW_NAME = '雪花';
-			this.METHOD_ALPHA_NAME = '透明';
-			this.METHOD_DOT_NAME = '黑點';
-			this.METHOD_GRAY_NAME = '灰階';
-			this.METHOD_CONTRAST_NAME = '對比';
-
 			this.init_step_method = [ 
 				{
 					method: '',
-					method_id: utils.createMethodId()
+					method_id: Utils.createMethodId()
 				}
 			];
 			let _sary_step_method_other = [];
-			// let _sary_step_method_other = [
-			// 	{
-			// 		method: this.METHOD_SNOW
-			// 	}, 
-			// 	{
-			// 		method: this.METHOD_ALPHA
-			// 	},
-			// 	{
-			// 		method: this.METHOD_CONTRAST
-			// 	}, 
-			// 	{
-			// 		method: this.METHOD_DOT
-			// 	}, 
-			// 	{
-			// 		method: this.METHOD_GRAY
-			// 	} 
-			// ];
 
 			this.step_method = this.init_step_method.concat( _sary_step_method_other );
 		}
@@ -744,15 +679,15 @@ function PictureDraw ( obj_main, json_size ) {
 
 		getConstNameByEn( str ){
 			if( (typeof str === 'string') && (str!=='') ){
-				return this['METHOD_'+str+'_NAME'];
+				return Settings['METHOD_'+str+'_NAME'];
 			}
 		}
 
 		pushStepMethod( json ){
 			if( json!==undefined ){
-				json.method_id = json.method_id || utils.createMethodId();
+				json.method_id = json.method_id || Utils.createMethodId();
 				this.step_method.push( json );
-				emitter.emit('stepMethod.option.added', json);
+				emitter.emit('step.method.option.added', json);
 			}
 		}
 
@@ -767,26 +702,109 @@ function PictureDraw ( obj_main, json_size ) {
 				}
 				if( _num_index>=0 ){
 					this.step_method.splice(_num_index,1);
-					emitter.emit('stepMethod.option.deleted', json);
+					emitter.emit('step.method.option.deleted', json);
 				}
 			}
 		}
 
 	}
 
-	class Utils{
-		createMethodId(){
-			return Date.now()+'-'+Math.floor(Math.random()*100);
-		}
+	let mainImageFilter = new MainImageFilter( obj_main, json_size );
+	let stepMethod = new StepMethod();
+	let emitter = new Emitter();
+	let imageDataComputeProcess = new ImageDataComputeProcess();
+	let imageDataComputeMethod = new ImageDataComputeMethod();
+
+	if( obj_main!==undefined ){
+
+		// 用完運算結束後，我們要用出預覽圖
+		emitter.on('imageData.final.step.computed', function(e){
+			let _json_data = arguments[0];
+			mainImageFilter.getObjImagePreview().src = _json_data.data;
+		});
+
+		// 新增效果
+		emitter.on('stepMethod.show.adding', function(e){
+			// 新增顯示method的文字
+			let _json_data = arguments[0];
+			let _obj_result = document.createElement('span');
+			_obj_result.style.marginRight = '20px' ;
+			_obj_result.data = _obj_result.data || {} ;
+			_obj_result.data.method_id = _json_data.method_id ;
+			_obj_result.data.method = _json_data.method ;
+			_obj_result.setAttribute('data-method-id',_json_data.method_id);
+			_obj_result.insertAdjacentHTML('beforeend', stepMethod.getConstNameByEn(_json_data.method) );
+			mainImageFilter.getObjMethodResult().appendChild(_obj_result);
+
+			mainImageFilter.methodDeleteBtnAction.call( _obj_result, mainImageFilter );
+
+			// 以下是實際執行新的圖片運算工作
+
+			let _sary_step_data = imageDataComputeProcess.getStepData();
+
+			if( (_sary_step_data instanceof Array === true) && _sary_step_data.length>0 ){
+
+				let _num_width = imageDataComputeMethod.getComputeWidth();
+				let _num_height = imageDataComputeMethod.getComputeHeight();
+
+				emitter.emit('imageData.step.success.loaded', {
+					origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
+					method: _json_data.method
+				});
+
+			}
+
+		});
+
+		emitter.on('stepMethod.show.deleting', function(e){
+			let _json_data = arguments[0];
+			let _sary_step_data = imageDataComputeProcess.getStepData();
+
+			if( (_sary_step_data instanceof Array === true) && _sary_step_data.length>0 ){
+
+				let _num_step_data = _sary_step_data.length;
+
+				let _sary_new_step_data = [];
+
+				for( let i=0; i<_num_step_data; i++ ){
+					if( _sary_step_data[i].method_id===_json_data.method_id ){
+						break;
+					}else{
+						_sary_new_step_data.push( _sary_step_data[i] );
+					}
+				}
+
+				let _num_new_step_data_length = _sary_new_step_data.length;
+
+				if( _num_new_step_data_length<_sary_step_data.length ){
+					imageDataComputeProcess.setStepData( _sary_new_step_data );
+				}
+		
+			}
+
+			mainImageFilter.getObjMethodResult().removeChild(_json_data.method_btn);
+
+		});
+
+		emitter.on('step.method.pushing',function(){
+			stepMethod.pushStepMethod(...arguments);
+		});
+
+		emitter.on('step.method.splicing',function(){
+			stepMethod.spliceStepMethod(...arguments);
+		});
+
+		emitter.on('step.method.option.added', function(e){
+			let _json_data = arguments[0];
+			emitter.emit('stepMethod.show.adding', _json_data); // 要改了，先不傳這事件?!
+		});
+
+		emitter.on('step.method.option.deleted', function(e){
+			let _json_data = arguments[0];
+			emitter.emit('stepMethod.show.deleting', _json_data); // 要改了，先不傳這事件?!
+		});
+
 	}
-
-	let utils = new Utils();
-	let stepMethod = new StepMethod;
-	let emitter = new Emitter;
-	let imageDataComputeProcess = new ImageDataComputeProcess;
-	let imageDataComputeMethod = new ImageDataComputeMethod;
-
-	new MainImageFilter( obj_main, json_size );
 
 }
 
