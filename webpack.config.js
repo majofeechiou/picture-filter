@@ -14,12 +14,13 @@ module.exports = {
 		loaders: [
             { 
                 test: /\.js$/, 
-                loaders: ['babel-loader']
-            }/*,
+                loaders: ['script-loader'], 
+                include: /external/
+            },
             { 
                 test: /\.js$/, 
-                loaders: ['script-loader']
-            }*/
+                loaders: ['babel-loader']
+            }
 		]
 	},
 	output: {
