@@ -29,7 +29,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 				_scope.setComputeWidth( _num_width ); // 在此先用圖片本身的長寬去做的
 				_scope.setComputeHeight( _num_height ); // 在此先用圖片本身的長寬去做的
 
-				Utils.emitter.emit('imageData.step.success.loaded', {
+				Utils.emitter.emit('step.image.success.loaded', {
 					origin_data: this.src,
 					method: _scope.getPainterMethod()
 				});
@@ -41,7 +41,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 		}
 
 		_scope.obj_image.error = function(){
-			Utils.emitter.emit('imageData.step.error.loaded', {
+			Utils.emitter.emit('step.image.error.loaded', {
 				origin_data: this.src
 			});
 		}
@@ -64,7 +64,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 		let _scope = this;
 			// let _data_url = _scope.obj_canvas.toDataURL();
 
-			// Utils.emitter.emit('imageData.step.success.computed', {
+			// Utils.emitter.emit('step.image.success.computed', {
 			// 	origin_data: json.origin_data,
 			// 	data: _data_url
 			// });
@@ -250,7 +250,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 			// _json_emit.method = json.method ;
 		}
 
-		Utils.emitter.emit('imageData.step.success.computed', _json_emit);
+		Utils.emitter.emit('step.image.success.computed', _json_emit);
 	}
 
 }

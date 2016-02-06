@@ -6,59 +6,46 @@ import Utils from './utils';
 export default class ImageDataComputeProcess {
 	constructor(){
 		let _scope = this;
-		this.step_data = [];
+		this.step_image = [];
 	}
-	getStepData(){
-		return this.step_data || [] ;
+	static TIMMING_RESET = 'reset';
+	static TIMMING_SET   = 'set';
+	getStepImage(){
+		return this.step_image || [] ;
 	}
-	setStepData( sary ){
+	setStepImage( sary, str_timmimg, json_other ){
+
 		let _scope = this;
 
 		sary = sary || [] ;
+		str_timmimg = str_timmimg || _scope.TIMMING_SET ;
+		json_other = json_other || {}
 
 		let _sary = JSON.parse( JSON.stringify( sary ) );
 
-		this.step_data = _sary ;
+		this.step_image = _sary ;
 
-		setTimeout(function(){
-			_scope.runningData();
-		},1);
+		Utils.emitter.emit('step.image.seted', str_timmimg, json_other);
 
 	}
 	pushStepData( json_data, sary_step_method ){
 		let _scope = this;
 
 		if( json_data.method_id===undefined ){
-			let _sary_step_data = JSON.parse(JSON.stringify( _scope.getStepData() )),
-				_num_step_data = _sary_step_data.length ;
+			let _sary_step_image = JSON.parse(JSON.stringify( _scope.getStepImage() )),
+				_num_step_image = _sary_step_image.length ;
 			let _sary_step_method = JSON.parse(JSON.stringify( sary_step_method )),
 				_num_step_method = _sary_step_method.length;
-			if( _num_step_method>=_num_step_data ){ // 去step_method中的記錄中找來用
-				let _str_method_id = _sary_step_method[_num_step_data].method_id;
+			if( _num_step_method>=_num_step_image ){ // 去step_method中的記錄中找來用
+				let _str_method_id = _sary_step_method[_num_step_image].method_id;
 				json_data.method_id = _str_method_id;
 			}
 		}
 
-		_scope.step_data.push(json_data) ;
+		_scope.step_image.push(json_data) ;
 
-		setTimeout(function(){
-			_scope.runningData();
-		},1);
+		Utils.emitter.emit('step.image.pushed');
 
 	}
-	runningData(){
-		let _scope = this;
-		let _num_step_length = _scope.step_data.length,
-			_sary_step_method = stepMethod.getStepMethod();
-		let _sary_step_data = _scope.getStepData(),
-			_json_data = _sary_step_data[_sary_step_data.length-1];
-		if( _num_step_length<_sary_step_method.length ){ 
-			// 先處理圖片
-			imageDataComputeMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
-		}else{
-			// 圖片處理好了，我們現在要準備預覽
-			Utils.emitter.emit('imageData.final.step.computed', _json_data);
-			console.log('******************* 預覽圖片!! *******************');
-		}
-	}
+
 };

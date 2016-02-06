@@ -31,7 +31,7 @@ export default class MainImageFilter{
 	// 抓原始圖片資料
 	setImageInitData( str_bas64 ){
 		this.image_init_data = str_bas64 ;
-		Utils.emitter.emit('initData.changed', {
+		Utils.emitter.emit('init.data.changed', {
 			origin_data: str_bas64
 		});
 	}
