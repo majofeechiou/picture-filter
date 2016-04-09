@@ -174,12 +174,6 @@ export default class MainImageFilter{
 		if( obj.nodeType>=1 ){
 
 			let _obj_image = new Image();
-			_obj_image.onload = function(e){
-				let _obj_canvas_preview = _scope.getObjCanvasPreview();
-				let _obj_canvas_2d = _scope.getObjCanvasPreview2d();
-				_obj_canvas_2d.clearRect(0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
-				_obj_canvas_2d.drawImage(this, 0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
-			}
 
 			_scope.imagePreviewOnLoad.call( _obj_image, this );
 
@@ -193,7 +187,8 @@ export default class MainImageFilter{
 
 	imagePreviewOnLoad( scope_calss ){
 		let _obj_self = this;
-		_obj_self.onload = function(e){
+		_obj_self.onload = function(){
+			console.log('onload');
 			let _obj_canvas_preview = scope_calss.getObjCanvasPreview();
 			let _obj_canvas_2d = scope_calss.getObjCanvasPreview2d();
 			_obj_canvas_2d.clearRect(0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
