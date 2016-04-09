@@ -1262,6 +1262,8 @@
 
 				_scope.step_image.push(json_data);
 
+				console.log('_scope.step_image :: ', _scope.step_image);
+
 				_utils2.default.emitter.emit('step.image.pushed');
 			}
 		}]);
@@ -1322,6 +1324,7 @@
 				if (json !== undefined) {
 					json.method_id = json.method_id || _utils2.default.createMethodId();
 					this.step_method.push(json);
+					console.log('this.step_method :: ', this.step_method);
 					_utils2.default.emitter.emit('step.method.option.added', json);
 				}
 			}

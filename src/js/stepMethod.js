@@ -25,6 +25,7 @@ export default class StepMethod {
 		if( json!==undefined ){
 			json.method_id = json.method_id || Utils.createMethodId();
 			this.step_method.push( json );
+			console.log( 'this.step_method :: ', this.step_method );
 			Utils.emitter.emit('step.method.option.added', json);
 		}
 	}
