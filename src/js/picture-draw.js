@@ -10,23 +10,18 @@ import GlobalConst from './globalConst';
 import Emitter from '../../node_modules/component-emitter/index.js';
 
 export default class PictureDraw extends GlobalConst {
-	constructor( obj_main, json_size ){
+	constructor( obj_main ){
 		super();
 
 		let _scope = this;
 
-		json_size = json_size || {} ;
-
 		let emitter = new Emitter();
 		_scope.addGlobalConst( _scope, 'emitter', emitter );
 
-		let mainImageFilter = new MainImageFilter( obj_main, json_size, {emitter:emitter} );
+		let mainImageFilter = new MainImageFilter( obj_main, {emitter:emitter} );
 		let stepMethod = new StepMethod({emitter:emitter});
 		let imageDataComputeProcess = new ImageDataComputeProcess({emitter:emitter});
 		let imageDataComputeMethod = new ImageDataComputeMethod({emitter:emitter});
-
-		let _obj_img_test = document.createElement('img');
-		obj_main.appendChild(_obj_img_test);
 
 		if( obj_main!==undefined ){
 
@@ -34,7 +29,9 @@ export default class PictureDraw extends GlobalConst {
 			_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
 				let _json_data = arguments[0];
 				mainImageFilter.getObjImagePreview().src = _json_data.data;
-				_obj_img_test.src = _json_data.data;
+
+				mainImageFilter.getObjImagePreview().width = _scope.getOriginImageWidth() / 2;
+				mainImageFilter.getObjImagePreview().height = _scope.getOriginImageHeight() / 2;
 			});
 
 			// 新增效果
@@ -123,6 +120,12 @@ export default class PictureDraw extends GlobalConst {
 				imageDataComputeProcess.setStepImage( [], ImageDataComputeProcess.TIMMING_RESET, _json_data );
 			});
 
+			_scope.getGlobalConst(_scope).emitter.on('origin.image.info.loaded', function(e){
+				let _json = arguments[0];
+				_scope.setOriginImageWidth( _json.width );
+				_scope.setOriginImageHeight( _json.height );
+			});
+
 			_scope.getGlobalConst(_scope).emitter.on('step.image.success.loaded', function(e){
 				let _json = arguments[0],
 					_str_method = _json.method;
@@ -193,6 +196,21 @@ export default class PictureDraw extends GlobalConst {
 
 		}
 
+	}
+
+	setOriginImageWidth( num ){
+		console.log( 'num :: ', num );
+		this.origin_image_width = num || 0 ;
+	}
+	setOriginImageHeight( num ){
+		this.origin_image_height = num || 0 ;
+	}
+
+	getOriginImageWidth(){
+		return this.origin_image_width ;
+	}
+	getOriginImageHeight(){
+		return this.origin_image_height ;
 	}
 
 };

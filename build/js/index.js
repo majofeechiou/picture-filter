@@ -89,6 +89,8 @@
 
 	'use strict';
 
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -136,25 +138,20 @@
 	var PictureDraw = (function (_GlobalConst) {
 		_inherits(PictureDraw, _GlobalConst);
 
-		function PictureDraw(obj_main, json_size) {
+		function PictureDraw(obj_main) {
 			_classCallCheck(this, PictureDraw);
 
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(PictureDraw).call(this));
 
 			var _scope = _this;
 
-			json_size = json_size || {};
-
 			var emitter = new _index2.default();
 			_scope.addGlobalConst(_scope, 'emitter', emitter);
 
-			var mainImageFilter = new _mainImageFilter2.default(obj_main, json_size, { emitter: emitter });
+			var mainImageFilter = new _mainImageFilter2.default(obj_main, { emitter: emitter });
 			var stepMethod = new _stepMethod2.default({ emitter: emitter });
 			var imageDataComputeProcess = new _imageDataComputeProcess2.default({ emitter: emitter });
 			var imageDataComputeMethod = new _imageDataComputeMethod2.default({ emitter: emitter });
-
-			var _obj_img_test = document.createElement('img');
-			obj_main.appendChild(_obj_img_test);
 
 			if (obj_main !== undefined) {
 
@@ -162,7 +159,9 @@
 				_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function (e) {
 					var _json_data = arguments[0];
 					mainImageFilter.getObjImagePreview().src = _json_data.data;
-					_obj_img_test.src = _json_data.data;
+
+					mainImageFilter.getObjImagePreview().width = _scope.getOriginImageWidth() / 2;
+					mainImageFilter.getObjImagePreview().height = _scope.getOriginImageHeight() / 2;
 				});
 
 				// 新增效果
@@ -247,6 +246,12 @@
 					imageDataComputeProcess.setStepImage([], _imageDataComputeProcess2.default.TIMMING_RESET, _json_data);
 				});
 
+				_scope.getGlobalConst(_scope).emitter.on('origin.image.info.loaded', function (e) {
+					var _json = arguments[0];
+					_scope.setOriginImageWidth(_json.width);
+					_scope.setOriginImageHeight(_json.height);
+				});
+
 				_scope.getGlobalConst(_scope).emitter.on('step.image.success.loaded', function (e) {
 					var _json = arguments[0],
 					    _str_method = _json.method;
@@ -308,6 +313,29 @@
 
 			return _this;
 		}
+
+		_createClass(PictureDraw, [{
+			key: 'setOriginImageWidth',
+			value: function setOriginImageWidth(num) {
+				console.log('num :: ', num);
+				this.origin_image_width = num || 0;
+			}
+		}, {
+			key: 'setOriginImageHeight',
+			value: function setOriginImageHeight(num) {
+				this.origin_image_height = num || 0;
+			}
+		}, {
+			key: 'getOriginImageWidth',
+			value: function getOriginImageWidth() {
+				return this.origin_image_width;
+			}
+		}, {
+			key: 'getOriginImageHeight',
+			value: function getOriginImageHeight() {
+				return this.origin_image_height;
+			}
+		}]);
 
 		return PictureDraw;
 	})(_globalConst2.default);
@@ -435,7 +463,7 @@
 	var MainImageFilter = (function (_GlobalConst) {
 		_inherits(MainImageFilter, _GlobalConst);
 
-		function MainImageFilter(obj, json_size, json_tools) {
+		function MainImageFilter(obj, json_tools) {
 			_classCallCheck(this, MainImageFilter);
 
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(MainImageFilter).call(this));
@@ -443,8 +471,7 @@
 			_this.setEmitter(json_tools.emitter);
 			_this.setModuleId(_utils2.default.createUniqueId());
 
-			_this.defaultAction(obj, json_size);
-			console.log('json_size :: ', json_size);
+			_this.defaultAction(obj);
 
 			return _this;
 		}
@@ -513,30 +540,6 @@
 				return this.getGlobalConst(this).OBJ_METHOD_RESULT;
 			}
 
-			// 得到Canvas預覽的區塊
-
-		}, {
-			key: 'getObjCanvasPreview',
-			value: function getObjCanvasPreview() {
-				return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW;
-			}
-
-			// 得到Canvas預覽的區塊
-
-		}, {
-			key: 'getObjCanvasPreview2d',
-			value: function getObjCanvasPreview2d() {
-				return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW_2D;
-			}
-
-			// 得到Canvas預覽的區塊長寬
-
-		}, {
-			key: 'getPreviewSize',
-			value: function getPreviewSize() {
-				return this.getGlobalConst(this).PREVIEW_SIZE;
-			}
-
 			// 得到上傳圖片的按鈕
 
 		}, {
@@ -565,17 +568,11 @@
 			key: 'returnCanvasSection',
 			value: function returnCanvasSection() {
 				var _obj_canvas_section = document.createElement('div');
-				var _json_size = this.getPreviewSize(),
-				    _obj_canvas_preview = document.createElement('canvas');
-				_obj_canvas_preview.setAttribute('data-obj', 'preview');
-				_obj_canvas_preview.width = _json_size.width;
-				_obj_canvas_preview.height = _json_size.height;
-				this.addGlobalConst(this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview);
+				var _obj_canvas_preview = new Image();
+
+				this.addGlobalConst(this, 'OBJ_IMAGE_PREVIEW', _obj_canvas_preview);
 
 				_obj_canvas_section.appendChild(_obj_canvas_preview);
-
-				var _obj_canvas_2d = _obj_canvas_preview.getContext('2d');
-				this.addGlobalConst(this, 'OBJ_CANVAS_PREVIEW_2D', _obj_canvas_2d);
 
 				return _obj_canvas_section;
 			}
@@ -743,36 +740,14 @@
 			}
 		}, {
 			key: 'defaultAction',
-			value: function defaultAction(obj, json_size) {
+			value: function defaultAction(obj) {
 				var _scope = this;
 				_scope.initGlobalConst(this);
-				json_size = json_size || {};
-				json_size.width = json_size.width > 0 ? json_size.width : 600; // 預覽圓片大小
-				json_size.height = json_size.height > 0 ? json_size.height : 450; // 預覽圓片大小
 
 				if (obj.nodeType >= 1) {
-
-					var _obj_image = new Image();
-
-					_scope.imagePreviewOnLoad.call(_obj_image, this);
-
 					_scope.addGlobalConst(this, 'MAIN_SECTION', obj);
-					_scope.addGlobalConst(this, 'PREVIEW_SIZE', json_size);
-					_scope.addGlobalConst(this, 'OBJ_IMAGE_PREVIEW', _obj_image);
 					_scope.makeTempate();
 				}
-			}
-		}, {
-			key: 'imagePreviewOnLoad',
-			value: function imagePreviewOnLoad(scope_calss) {
-				var _obj_self = this;
-				_obj_self.onload = function () {
-					console.log('onload');
-					var _obj_canvas_preview = scope_calss.getObjCanvasPreview();
-					var _obj_canvas_2d = scope_calss.getObjCanvasPreview2d();
-					_obj_canvas_2d.clearRect(0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
-					_obj_canvas_2d.drawImage(this, 0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
-				};
 			}
 		}, {
 			key: 'uploadAction',
@@ -918,6 +893,11 @@
 
 					_scope.setComputeWidth(_num_width); // 在此先用圖片本身的長寬去做的
 					_scope.setComputeHeight(_num_height); // 在此先用圖片本身的長寬去做的
+
+					_scope.getEmitter().emit('origin.image.info.loaded', {
+						width: _num_width,
+						height: _num_height
+					});
 
 					_scope.getEmitter().emit('step.image.success.loaded', {
 						origin_data: this.src,

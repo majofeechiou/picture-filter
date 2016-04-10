@@ -6,14 +6,13 @@ import GlobalConst from './globalConst';
 
 export default class MainImageFilter extends GlobalConst {
 
-	constructor( obj, json_size, json_tools ){
+	constructor( obj, json_tools ){
 		super();
 
 		this.setEmitter( json_tools.emitter );
 		this.setModuleId( Utils.createUniqueId() );
 
-		this.defaultAction( obj, json_size );
-		console.log( 'json_size :: ', json_size );
+		this.defaultAction( obj );
 
 	}
 
@@ -61,21 +60,6 @@ export default class MainImageFilter extends GlobalConst {
 		return this.getGlobalConst(this).OBJ_METHOD_RESULT;
 	}
 
-	// 得到Canvas預覽的區塊
-	getObjCanvasPreview(){
-		return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW;
-	}
-
-	// 得到Canvas預覽的區塊
-	getObjCanvasPreview2d(){
-		return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW_2D;
-	}
-
-	// 得到Canvas預覽的區塊長寬
-	getPreviewSize(){
-		return this.getGlobalConst(this).PREVIEW_SIZE;
-	}
-
 	// 得到上傳圖片的按鈕
 	getObjUpload(){
 		return this.getGlobalConst(this).OBJ_UPLOAD;
@@ -91,21 +75,15 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_upload_section.appendChild(_obj_upload);
 		return _obj_upload_section;
 	}
-
+	
 	// 預覽圖片
 	returnCanvasSection(){
 		let _obj_canvas_section 	= document.createElement('div');
-		let _json_size  = this.getPreviewSize(),
-			_obj_canvas_preview = document.createElement( 'canvas' );
-		_obj_canvas_preview.setAttribute('data-obj','preview');
-		_obj_canvas_preview.width = _json_size.width;
-		_obj_canvas_preview.height = _json_size.height;
-		this.addGlobalConst( this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview );
+		let _obj_canvas_preview = new Image();
+		
+		this.addGlobalConst( this, 'OBJ_IMAGE_PREVIEW', _obj_canvas_preview );
 
-		_obj_canvas_section.appendChild(_obj_canvas_preview);
-
-		let _obj_canvas_2d = _obj_canvas_preview.getContext('2d');
-		this.addGlobalConst( this, 'OBJ_CANVAS_PREVIEW_2D', _obj_canvas_2d );
+		_obj_canvas_section.appendChild( _obj_canvas_preview );
 
 		return _obj_canvas_section;
 	}
@@ -265,36 +243,15 @@ export default class MainImageFilter extends GlobalConst {
 
 	}
 
-	defaultAction( obj, json_size ){
+	defaultAction( obj ){
 		let _scope = this;
 		_scope.initGlobalConst(this);
-		json_size = json_size || {} ;
-		json_size.width = (json_size.width>0)? json_size.width : 600 ; // 預覽圓片大小
-		json_size.height = (json_size.height>0)? json_size.height : 450 ; // 預覽圓片大小
 
 		if( obj.nodeType>=1 ){
-
-			let _obj_image = new Image();
-
-			_scope.imagePreviewOnLoad.call( _obj_image, this );
-
 			_scope.addGlobalConst( this, 'MAIN_SECTION', obj );
-			_scope.addGlobalConst( this, 'PREVIEW_SIZE', json_size );
-			_scope.addGlobalConst( this, 'OBJ_IMAGE_PREVIEW', _obj_image );
 			_scope.makeTempate();
 		}
 
-	}
-
-	imagePreviewOnLoad( scope_calss ){
-		let _obj_self = this;
-		_obj_self.onload = function(){
-			console.log('onload');
-			let _obj_canvas_preview = scope_calss.getObjCanvasPreview();
-			let _obj_canvas_2d = scope_calss.getObjCanvasPreview2d();
-			_obj_canvas_2d.clearRect(0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
-			_obj_canvas_2d.drawImage(this, 0, 0, _obj_canvas_preview.width, _obj_canvas_preview.height);
-		}
 	}
 
 	uploadAction( scope_calss ){
