@@ -101,7 +101,7 @@
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _mainImageFilter = __webpack_require__(7);
+	var _mainImageFilter = __webpack_require__(6);
 
 	var _mainImageFilter2 = _interopRequireDefault(_mainImageFilter);
 
@@ -117,11 +117,11 @@
 
 	var _stepMethod2 = _interopRequireDefault(_stepMethod);
 
-	var _globalConst = __webpack_require__(12);
+	var _globalConst = __webpack_require__(7);
 
 	var _globalConst2 = _interopRequireDefault(_globalConst);
 
-	var _index = __webpack_require__(6);
+	var _index = __webpack_require__(12);
 
 	var _index2 = _interopRequireDefault(_index);
 
@@ -390,168 +390,6 @@
 
 /***/ },
 /* 6 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	/**
-	 * Expose `Emitter`.
-	 */
-
-	module.exports = Emitter;
-
-	/**
-	 * Initialize a new `Emitter`.
-	 *
-	 * @api public
-	 */
-
-	function Emitter(obj) {
-	  if (obj) return mixin(obj);
-	};
-
-	/**
-	 * Mixin the emitter properties.
-	 *
-	 * @param {Object} obj
-	 * @return {Object}
-	 * @api private
-	 */
-
-	function mixin(obj) {
-	  for (var key in Emitter.prototype) {
-	    obj[key] = Emitter.prototype[key];
-	  }
-	  return obj;
-	}
-
-	/**
-	 * Listen on the given `event` with `fn`.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
-	  this._callbacks = this._callbacks || {};
-	  (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
-	  return this;
-	};
-
-	/**
-	 * Adds an `event` listener that will be invoked a single
-	 * time then automatically removed.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.once = function (event, fn) {
-	  function on() {
-	    this.off(event, on);
-	    fn.apply(this, arguments);
-	  }
-
-	  on.fn = fn;
-	  this.on(event, on);
-	  return this;
-	};
-
-	/**
-	 * Remove the given callback for `event` or all
-	 * registered callbacks.
-	 *
-	 * @param {String} event
-	 * @param {Function} fn
-	 * @return {Emitter}
-	 * @api public
-	 */
-
-	Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
-	  this._callbacks = this._callbacks || {};
-
-	  // all
-	  if (0 == arguments.length) {
-	    this._callbacks = {};
-	    return this;
-	  }
-
-	  // specific event
-	  var callbacks = this._callbacks['$' + event];
-	  if (!callbacks) return this;
-
-	  // remove all handlers
-	  if (1 == arguments.length) {
-	    delete this._callbacks['$' + event];
-	    return this;
-	  }
-
-	  // remove specific handler
-	  var cb;
-	  for (var i = 0; i < callbacks.length; i++) {
-	    cb = callbacks[i];
-	    if (cb === fn || cb.fn === fn) {
-	      callbacks.splice(i, 1);
-	      break;
-	    }
-	  }
-	  return this;
-	};
-
-	/**
-	 * Emit `event` with the given args.
-	 *
-	 * @param {String} event
-	 * @param {Mixed} ...
-	 * @return {Emitter}
-	 */
-
-	Emitter.prototype.emit = function (event) {
-	  this._callbacks = this._callbacks || {};
-	  var args = [].slice.call(arguments, 1),
-	      callbacks = this._callbacks['$' + event];
-
-	  if (callbacks) {
-	    callbacks = callbacks.slice(0);
-	    for (var i = 0, len = callbacks.length; i < len; ++i) {
-	      callbacks[i].apply(this, args);
-	    }
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Return array of callbacks for `event`.
-	 *
-	 * @param {String} event
-	 * @return {Array}
-	 * @api public
-	 */
-
-	Emitter.prototype.listeners = function (event) {
-	  this._callbacks = this._callbacks || {};
-	  return this._callbacks['$' + event] || [];
-	};
-
-	/**
-	 * Check if this emitter has `event` handlers.
-	 *
-	 * @param {String} event
-	 * @return {Boolean}
-	 * @api public
-	 */
-
-	Emitter.prototype.hasListeners = function (event) {
-	  return !!this.listeners(event).length;
-	};
-
-/***/ },
-/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -566,7 +404,7 @@
 
 	var _Settings2 = _interopRequireDefault(_Settings);
 
-	var _globalConst = __webpack_require__(12);
+	var _globalConst = __webpack_require__(7);
 
 	var _globalConst2 = _interopRequireDefault(_globalConst);
 
@@ -878,6 +716,42 @@
 	;
 
 /***/ },
+/* 7 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var GlobalConst = function GlobalConst() {
+	    _classCallCheck(this, GlobalConst);
+
+	    this.WEAK_MAP = new WeakMap();
+
+	    this.initGlobalConst = function (object) {
+	        var data = {};
+	        this.WEAK_MAP.set(object, data);
+	        return data;
+	    };
+	    this.getGlobalConst = function (object) {
+	        return this.WEAK_MAP.get(object);
+	    };
+	    this.addGlobalConst = function (object, str_key, data_value) {
+	        var data = this.WEAK_MAP || {};
+	        data[str_key] = data_value;
+	        this.WEAK_MAP.set(object, data);
+	        return data;
+	    };
+	};
+
+	exports.default = GlobalConst;
+	;
+
+/***/ },
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -889,9 +763,9 @@
 		value: true
 	});
 
-	var _ImageDataComputeSize2 = __webpack_require__(9);
+	var _tools = __webpack_require__(9);
 
-	var _ImageDataComputeSize3 = _interopRequireDefault(_ImageDataComputeSize2);
+	var _tools2 = _interopRequireDefault(_tools);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -903,8 +777,8 @@
 
 	// 運算的方式
 
-	var ImageDataComputeMethod = (function (_ImageDataComputeSize) {
-		_inherits(ImageDataComputeMethod, _ImageDataComputeSize);
+	var ImageDataComputeMethod = (function (_Tools) {
+		_inherits(ImageDataComputeMethod, _Tools);
 
 		function ImageDataComputeMethod(json_tools) {
 			_classCallCheck(this, ImageDataComputeMethod);
@@ -957,15 +831,34 @@
 				var _scope = this;
 				return _scope.painter_method;
 			}
+			// 圖片運算是用多大寬度運算出來的
+
 		}, {
-			key: 'getEmitter',
-			value: function getEmitter() {
-				return this.emitter;
+			key: 'getComputeWidth',
+			value: function getComputeWidth() {
+				return this.compute_width;
 			}
+			// 圖片運算是用多大高度運算出來的
+
 		}, {
-			key: 'setEmitter',
-			value: function setEmitter(object) {
-				this.emitter = object;
+			key: 'getComputeHeight',
+			value: function getComputeHeight() {
+				return this.compute_height;
+			}
+
+			// 圖片運算是用多大寬度運算出來的
+
+		}, {
+			key: 'setComputeWidth',
+			value: function setComputeWidth(num) {
+				this.compute_width = num || 0;
+			}
+			// 圖片運算是用多大高度運算出來的
+
+		}, {
+			key: 'setComputeHeight',
+			value: function setComputeHeight(num) {
+				this.compute_height = num || 0;
 			}
 		}, {
 			key: 'changeData',
@@ -1184,7 +1077,7 @@
 		}]);
 
 		return ImageDataComputeMethod;
-	})(_ImageDataComputeSize3.default);
+	})(_tools2.default);
 
 	exports.default = ImageDataComputeMethod;
 
@@ -1202,56 +1095,33 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var ImageDataComputeSize = (function () {
-		function ImageDataComputeSize() {
-			_classCallCheck(this, ImageDataComputeSize);
+	var Tools = (function () {
+		function Tools() {
+			_classCallCheck(this, Tools);
 		}
 
-		_createClass(ImageDataComputeSize, [{
-			key: 'setComputeWidth',
-
-			// 圖片運算是用多大寬度運算出來的
-			value: function setComputeWidth(num) {
-				this.compute_width = num || 0;
+		_createClass(Tools, [{
+			key: 'getEmitter',
+			value: function getEmitter() {
+				return this.emitter;
 			}
-
-			// 圖片運算是用多大高度運算出來的
-
 		}, {
-			key: 'setComputeHeight',
-			value: function setComputeHeight(num) {
-				this.compute_height = num || 0;
-			}
-
-			// 圖片運算是用多大寬度運算出來的
-
-		}, {
-			key: 'getComputeWidth',
-			value: function getComputeWidth() {
-				return this.compute_width;
-			}
-
-			// 圖片運算是用多大高度運算出來的
-
-		}, {
-			key: 'getComputeHeight',
-			value: function getComputeHeight() {
-				return this.compute_height;
+			key: 'setEmitter',
+			value: function setEmitter(object) {
+				this.emitter = object;
 			}
 		}]);
 
-		return ImageDataComputeSize;
+		return Tools;
 	})();
 
-	exports.default = ImageDataComputeSize;
+	exports.default = Tools;
 
 /***/ },
 /* 10 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
-	// 利用事件的補捉，來記錄我們的圖片運算狀況
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -1259,30 +1129,37 @@
 		value: true
 	});
 
+	var _tools = __webpack_require__(9);
+
+	var _tools2 = _interopRequireDefault(_tools);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var ImageDataComputeProcess = (function () {
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	// 利用事件的補捉，來記錄我們的圖片運算狀況
+
+	var ImageDataComputeProcess = (function (_Tools) {
+		_inherits(ImageDataComputeProcess, _Tools);
+
 		function ImageDataComputeProcess(json_tools) {
 			_classCallCheck(this, ImageDataComputeProcess);
 
-			this.step_image = [];
-			this.setEmitter(json_tools.emitter);
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ImageDataComputeProcess).call(this));
+
+			_this.step_image = [];
+			_this.setEmitter(json_tools.emitter);
+			return _this;
 		}
 
 		_createClass(ImageDataComputeProcess, [{
-			key: 'getEmitter',
-			value: function getEmitter() {
-				return this.emitter;
-			}
-		}, {
 			key: 'getStepImage',
 			value: function getStepImage() {
 				return this.step_image || [];
-			}
-		}, {
-			key: 'setEmitter',
-			value: function setEmitter(object) {
-				this.emitter = object;
 			}
 		}, {
 			key: 'setStepImage',
@@ -1326,7 +1203,7 @@
 		}]);
 
 		return ImageDataComputeProcess;
-	})();
+	})(_tools2.default);
 
 	ImageDataComputeProcess.TIMMING_RESET = 'reset';
 	ImageDataComputeProcess.TIMMING_SET = 'set';
@@ -1353,38 +1230,41 @@
 
 	var _utils2 = _interopRequireDefault(_utils);
 
+	var _tools = __webpack_require__(9);
+
+	var _tools2 = _interopRequireDefault(_tools);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var StepMethod = (function () {
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var StepMethod = (function (_Tools) {
+		_inherits(StepMethod, _Tools);
+
 		function StepMethod(json_tools) {
 			_classCallCheck(this, StepMethod);
 
-			this.init_step_method = [{
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(StepMethod).call(this));
+
+			_this.init_step_method = [{
 				method: '',
 				method_id: _utils2.default.createMethodId()
 			}];
 			var _sary_step_method_other = [];
 
-			this.step_method = this.init_step_method.concat(_sary_step_method_other);
-			this.setEmitter(json_tools.emitter);
+			_this.step_method = _this.init_step_method.concat(_sary_step_method_other);
+			_this.setEmitter(json_tools.emitter);
+			return _this;
 		}
 
 		_createClass(StepMethod, [{
 			key: 'getStepMethod',
 			value: function getStepMethod() {
 				return this.step_method || [];
-			}
-		}, {
-			key: 'getEmitter',
-			value: function getEmitter() {
-				return this.emitter;
-			}
-		}, {
-			key: 'setEmitter',
-			value: function setEmitter(object) {
-				this.emitter = object;
 			}
 		}, {
 			key: 'pushStepMethod',
@@ -1416,7 +1296,7 @@
 		}]);
 
 		return StepMethod;
-	})();
+	})(_tools2.default);
 
 	exports.default = StepMethod;
 	;
@@ -1427,35 +1307,161 @@
 
 	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
+	/**
+	 * Expose `Emitter`.
+	 */
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	module.exports = Emitter;
 
-	var GlobalConst = function GlobalConst() {
-	    _classCallCheck(this, GlobalConst);
+	/**
+	 * Initialize a new `Emitter`.
+	 *
+	 * @api public
+	 */
 
-	    this.WEAK_MAP = new WeakMap();
-
-	    this.initGlobalConst = function (object) {
-	        var data = {};
-	        this.WEAK_MAP.set(object, data);
-	        return data;
-	    };
-	    this.getGlobalConst = function (object) {
-	        return this.WEAK_MAP.get(object);
-	    };
-	    this.addGlobalConst = function (object, str_key, data_value) {
-	        var data = this.WEAK_MAP || {};
-	        data[str_key] = data_value;
-	        this.WEAK_MAP.set(object, data);
-	        return data;
-	    };
+	function Emitter(obj) {
+	  if (obj) return mixin(obj);
 	};
 
-	exports.default = GlobalConst;
-	;
+	/**
+	 * Mixin the emitter properties.
+	 *
+	 * @param {Object} obj
+	 * @return {Object}
+	 * @api private
+	 */
+
+	function mixin(obj) {
+	  for (var key in Emitter.prototype) {
+	    obj[key] = Emitter.prototype[key];
+	  }
+	  return obj;
+	}
+
+	/**
+	 * Listen on the given `event` with `fn`.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
+	  this._callbacks = this._callbacks || {};
+	  (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+	  return this;
+	};
+
+	/**
+	 * Adds an `event` listener that will be invoked a single
+	 * time then automatically removed.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.once = function (event, fn) {
+	  function on() {
+	    this.off(event, on);
+	    fn.apply(this, arguments);
+	  }
+
+	  on.fn = fn;
+	  this.on(event, on);
+	  return this;
+	};
+
+	/**
+	 * Remove the given callback for `event` or all
+	 * registered callbacks.
+	 *
+	 * @param {String} event
+	 * @param {Function} fn
+	 * @return {Emitter}
+	 * @api public
+	 */
+
+	Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
+	  this._callbacks = this._callbacks || {};
+
+	  // all
+	  if (0 == arguments.length) {
+	    this._callbacks = {};
+	    return this;
+	  }
+
+	  // specific event
+	  var callbacks = this._callbacks['$' + event];
+	  if (!callbacks) return this;
+
+	  // remove all handlers
+	  if (1 == arguments.length) {
+	    delete this._callbacks['$' + event];
+	    return this;
+	  }
+
+	  // remove specific handler
+	  var cb;
+	  for (var i = 0; i < callbacks.length; i++) {
+	    cb = callbacks[i];
+	    if (cb === fn || cb.fn === fn) {
+	      callbacks.splice(i, 1);
+	      break;
+	    }
+	  }
+	  return this;
+	};
+
+	/**
+	 * Emit `event` with the given args.
+	 *
+	 * @param {String} event
+	 * @param {Mixed} ...
+	 * @return {Emitter}
+	 */
+
+	Emitter.prototype.emit = function (event) {
+	  this._callbacks = this._callbacks || {};
+	  var args = [].slice.call(arguments, 1),
+	      callbacks = this._callbacks['$' + event];
+
+	  if (callbacks) {
+	    callbacks = callbacks.slice(0);
+	    for (var i = 0, len = callbacks.length; i < len; ++i) {
+	      callbacks[i].apply(this, args);
+	    }
+	  }
+
+	  return this;
+	};
+
+	/**
+	 * Return array of callbacks for `event`.
+	 *
+	 * @param {String} event
+	 * @return {Array}
+	 * @api public
+	 */
+
+	Emitter.prototype.listeners = function (event) {
+	  this._callbacks = this._callbacks || {};
+	  return this._callbacks['$' + event] || [];
+	};
+
+	/**
+	 * Check if this emitter has `event` handlers.
+	 *
+	 * @param {String} event
+	 * @return {Boolean}
+	 * @api public
+	 */
+
+	Emitter.prototype.hasListeners = function (event) {
+	  return !!this.listeners(event).length;
+	};
 
 /***/ }
 /******/ ]);

@@ -1,24 +1,20 @@
 'use strict';
+import Tools from './tools';
 
 // 利用事件的補捉，來記錄我們的圖片運算狀況
-export default class ImageDataComputeProcess {
+export default class ImageDataComputeProcess extends Tools {
 	constructor( json_tools ){
+		super();
 		this.step_image = [];
 		this.setEmitter( json_tools.emitter );
 	}
 	static TIMMING_RESET = 'reset';
 	static TIMMING_SET   = 'set';
 
-	getEmitter(){
-		return this.emitter ;
-	}
 	getStepImage(){
 		return this.step_image || [] ;
 	}
 
-	setEmitter(object){
-		this.emitter = object ;
-	}
 	setStepImage( sary, str_timmimg, json_other ){
 
 		let _scope = this;

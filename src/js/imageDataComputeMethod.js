@@ -1,9 +1,8 @@
 'use strict';
-
-import ImageDataComputeSize from './ImageDataComputeSize';
+import Tools from './tools';
 
 // 運算的方式
-export default class ImageDataComputeMethod extends ImageDataComputeSize {
+export default class ImageDataComputeMethod extends Tools {
 	constructor( json_tools ){
 		super();
 
@@ -52,12 +51,22 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 		let _scope = this;
 		return _scope.painter_method;
 	}
-	getEmitter(){
-		return this.emitter ;
+	// 圖片運算是用多大寬度運算出來的
+	getComputeWidth(){
+		return this.compute_width;
+	}
+	// 圖片運算是用多大高度運算出來的
+	getComputeHeight(){
+		return this.compute_height;
 	}
 
-	setEmitter(object){
-		this.emitter = object ;
+	// 圖片運算是用多大寬度運算出來的
+	setComputeWidth( num ){
+		this.compute_width = num || 0 ;
+	}
+	// 圖片運算是用多大高度運算出來的
+	setComputeHeight( num ){
+		this.compute_height = num || 0 ;
 	}
 
 	changeData( str_painter_method, str_base64 ){

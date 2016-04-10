@@ -8,7 +8,7 @@ export default class MainImageFilter extends GlobalConst {
 	constructor( obj, json_size, json_tools ){
 		super();
 
-		this.setEmitter(json_tools.emitter);
+		this.setEmitter( json_tools.emitter );
 
 		// this.WEAK_MAP = new WeakMap();
 		// this.initGlobalConst = function( object ){

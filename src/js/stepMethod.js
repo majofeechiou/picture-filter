@@ -2,9 +2,11 @@
 
 import Settings from './Settings';
 import Utils from './utils';
+import Tools from './tools';
 
-export default class StepMethod {
+export default class StepMethod extends Tools {
 	constructor(json_tools){
+		super();
 
 		this.init_step_method = [ 
 			{
@@ -20,13 +22,6 @@ export default class StepMethod {
 
 	getStepMethod(){
 		return this.step_method || [] ;
-	}
-	getEmitter(){
-		return this.emitter ;
-	}
-
-	setEmitter(object){
-		this.emitter = object ;
 	}
 
 	pushStepMethod( json ){
