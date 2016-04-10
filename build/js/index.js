@@ -76,7 +76,8 @@
 		// new PictureDraw( _obj_main[0], {} );
 		var pictureDraw = new _pictureDraw2.default(_obj_main[0], {});
 
-		// new PictureDraw( _obj_main[1], {width: 250, height: 100} );
+		new _pictureDraw2.default(_obj_main[1], { width: 250, height: 100 });
+		new _pictureDraw2.default(_obj_main[2], { width: 250, height: 100 });
 	})(); // 用input抓原始圖片資料
 	// 用canvas修改圖片資料
 	// 預覽圖（固定某大小做為預覽圖）
@@ -116,169 +117,196 @@
 
 	var _stepMethod2 = _interopRequireDefault(_stepMethod);
 
+	var _globalConst = __webpack_require__(12);
+
+	var _globalConst2 = _interopRequireDefault(_globalConst);
+
+	var _index = __webpack_require__(6);
+
+	var _index2 = _interopRequireDefault(_index);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var PictureDraw = function PictureDraw(obj_main, json_size) {
-		_classCallCheck(this, PictureDraw);
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
-		json_size = json_size || {};
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-		var mainImageFilter = new _mainImageFilter2.default(obj_main, json_size);
-		var stepMethod = new _stepMethod2.default();
-		var imageDataComputeProcess = new _imageDataComputeProcess2.default();
-		var imageDataComputeMethod = new _imageDataComputeMethod2.default();
+	var PictureDraw = (function (_GlobalConst) {
+		_inherits(PictureDraw, _GlobalConst);
 
-		if (obj_main !== undefined) {
+		function PictureDraw(obj_main, json_size) {
+			_classCallCheck(this, PictureDraw);
 
-			// 用完運算結束後，我們要用出預覽圖
-			_utils2.default.emitter.on('step.image.final.step.computed', function (e) {
-				var _json_data = arguments[0];
-				mainImageFilter.getObjImagePreview().src = _json_data.data;
-			});
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(PictureDraw).call(this));
 
-			// 新增效果
-			_utils2.default.emitter.on('step.method.show.adding', function (e) {
-				// 新增顯示method的文字
-				var _json_data = arguments[0];
-				var _obj_result = document.createElement('span');
-				_obj_result.style.marginRight = '20px';
-				_obj_result.data = _obj_result.data || {};
-				_obj_result.data.method_id = _json_data.method_id;
-				_obj_result.data.method = _json_data.method;
-				_obj_result.setAttribute('data-method-id', _json_data.method_id);
-				_obj_result.insertAdjacentHTML('beforeend', _Settings2.default.getConstNameByEn(_json_data.method));
-				mainImageFilter.getObjMethodResult().appendChild(_obj_result);
+			var _scope = _this;
 
-				mainImageFilter.methodDeleteBtnAction.call(_obj_result, mainImageFilter);
+			json_size = json_size || {};
 
-				// 以下是實際執行新的圖片運算工作
+			var emitter = new _index2.default();
+			_scope.addGlobalConst(_scope, 'emitter', emitter);
 
-				var _sary_step_data = imageDataComputeProcess.getStepImage();
+			var mainImageFilter = new _mainImageFilter2.default(obj_main, json_size, { emitter: emitter });
+			var stepMethod = new _stepMethod2.default({ emitter: emitter });
+			var imageDataComputeProcess = new _imageDataComputeProcess2.default({ emitter: emitter });
+			var imageDataComputeMethod = new _imageDataComputeMethod2.default({ emitter: emitter });
 
-				if (_sary_step_data instanceof Array === true && _sary_step_data.length > 0) {
+			if (obj_main !== undefined) {
 
-					var _num_width = imageDataComputeMethod.getComputeWidth();
-					var _num_height = imageDataComputeMethod.getComputeHeight();
+				// 用完運算結束後，我們要用出預覽圖
+				_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function (e) {
+					var _json_data = arguments[0];
+					mainImageFilter.getObjImagePreview().src = _json_data.data;
+				});
 
-					_utils2.default.emitter.emit('step.image.success.loaded', {
-						origin_data: _sary_step_data[_sary_step_data.length - 1].data, // 目前得到的最後一次運算結果
-						method: _json_data.method
-					});
-				}
-			});
+				// 新增效果
+				_scope.getGlobalConst(_scope).emitter.on('step.method.show.adding', function (e) {
+					// 新增顯示method的文字
+					var _json_data = arguments[0];
+					var _obj_result = document.createElement('span');
+					_obj_result.style.marginRight = '20px';
+					_obj_result.data = _obj_result.data || {};
+					_obj_result.data.method_id = _json_data.method_id;
+					_obj_result.data.method = _json_data.method;
+					_obj_result.setAttribute('data-method-id', _json_data.method_id);
+					_obj_result.insertAdjacentHTML('beforeend', _Settings2.default.getConstNameByEn(_json_data.method));
+					mainImageFilter.getObjMethodResult().appendChild(_obj_result);
 
-			_utils2.default.emitter.on('step.method.show.deleting', function (e) {
-				var _json_data = arguments[0];
-				var _sary_step_data = imageDataComputeProcess.getStepImage();
+					mainImageFilter.methodDeleteBtnAction.call(_obj_result, mainImageFilter);
 
-				if (_sary_step_data instanceof Array === true && _sary_step_data.length > 0) {
+					// 以下是實際執行新的圖片運算工作
 
-					var _num_step_data = _sary_step_data.length;
+					var _sary_step_data = imageDataComputeProcess.getStepImage();
 
-					var _sary_new_step_data = [];
+					if (_sary_step_data instanceof Array === true && _sary_step_data.length > 0) {
 
-					for (var i = 0; i < _num_step_data; i++) {
-						if (_sary_step_data[i].method_id === _json_data.method_id) {
-							break;
-						} else {
-							_sary_new_step_data.push(_sary_step_data[i]);
+						var _num_width = imageDataComputeMethod.getComputeWidth();
+						var _num_height = imageDataComputeMethod.getComputeHeight();
+
+						_scope.getGlobalConst(_scope).emitter.emit('step.image.success.loaded', {
+							origin_data: _sary_step_data[_sary_step_data.length - 1].data, // 目前得到的最後一次運算結果
+							method: _json_data.method
+						});
+					}
+				});
+
+				_scope.getGlobalConst(_scope).emitter.on('step.method.show.deleting', function (e) {
+					var _json_data = arguments[0];
+					var _sary_step_data = imageDataComputeProcess.getStepImage();
+
+					if (_sary_step_data instanceof Array === true && _sary_step_data.length > 0) {
+
+						var _num_step_data = _sary_step_data.length;
+
+						var _sary_new_step_data = [];
+
+						for (var i = 0; i < _num_step_data; i++) {
+							if (_sary_step_data[i].method_id === _json_data.method_id) {
+								break;
+							} else {
+								_sary_new_step_data.push(_sary_step_data[i]);
+							}
+						}
+
+						var _num_new_step_data_length = _sary_new_step_data.length;
+
+						if (_num_new_step_data_length < _sary_step_data.length) {
+							imageDataComputeProcess.setStepImage(_sary_new_step_data);
 						}
 					}
 
-					var _num_new_step_data_length = _sary_new_step_data.length;
+					mainImageFilter.getObjMethodResult().removeChild(_json_data.method_btn);
+				});
 
-					if (_num_new_step_data_length < _sary_step_data.length) {
-						imageDataComputeProcess.setStepImage(_sary_new_step_data);
+				_scope.getGlobalConst(_scope).emitter.on('step.method.pushing', function () {
+					stepMethod.pushStepMethod.apply(stepMethod, arguments);
+				});
+
+				_scope.getGlobalConst(_scope).emitter.on('step.method.splicing', function () {
+					stepMethod.spliceStepMethod.apply(stepMethod, arguments);
+				});
+
+				_scope.getGlobalConst(_scope).emitter.on('step.method.option.added', function (e) {
+					var _json_data = arguments[0];
+					_scope.getGlobalConst(_scope).emitter.emit('step.method.show.adding', _json_data); // 要改了，先不傳這事件?!
+				});
+
+				_scope.getGlobalConst(_scope).emitter.on('step.method.option.deleted', function (e) {
+					var _json_data = arguments[0];
+					_scope.getGlobalConst(_scope).emitter.emit('step.method.show.deleting', _json_data); // 要改了，先不傳這事件?!
+				});
+
+				_scope.getGlobalConst(_scope).emitter.on('init.data.changed', function (e) {
+					var _json_data = arguments[0];
+					imageDataComputeProcess.setStepImage([], _imageDataComputeProcess2.default.TIMMING_RESET, _json_data);
+				});
+
+				_scope.getGlobalConst(_scope).emitter.on('step.image.success.loaded', function (e) {
+					var _json = arguments[0],
+					    _str_method = _json.method;
+
+					if (_str_method === _Settings2.default.METHOD_SNOW) {
+						imageDataComputeMethod.methodSnow(_json);
+					} else if (_str_method === _Settings2.default.METHOD_DOT) {
+						imageDataComputeMethod.methodDot(_json);
+					} else if (_str_method === _Settings2.default.METHOD_ALPHA) {
+						imageDataComputeMethod.methodAlpha(_json);
+					} else if (_str_method === _Settings2.default.METHOD_GRAY) {
+						imageDataComputeMethod.methodGray(_json);
+					} else if (_str_method === _Settings2.default.METHOD_CONTRAST) {
+						imageDataComputeMethod.methodContrast(_json);
+					} else {
+						imageDataComputeMethod.methodOrigin(_json);
 					}
-				}
+				});
 
-				mainImageFilter.getObjMethodResult().removeChild(_json_data.method_btn);
-			});
+				_scope.getGlobalConst(_scope).emitter.on('step.image.error.loaded', function (e) {});
 
-			_utils2.default.emitter.on('step.method.pushing', function () {
-				stepMethod.pushStepMethod.apply(stepMethod, arguments);
-			});
+				_scope.getGlobalConst(_scope).emitter.on('step.image.success.computed', function (e) {
+					var _json_data = arguments[0];
+					if (_json_data && typeof _json_data.origin_data === 'string' && _json_data.origin_data !== '') {
+						imageDataComputeProcess.pushStepData(_json_data, stepMethod.getStepMethod());
+					}
+				});
 
-			_utils2.default.emitter.on('step.method.splicing', function () {
-				stepMethod.spliceStepMethod.apply(stepMethod, arguments);
-			});
+				_scope.getGlobalConst(_scope).emitter.on('step.image.seted', function (e) {
+					var _str_timming = arguments[0],
+					    _json_other = arguments[1] || {};
 
-			_utils2.default.emitter.on('step.method.option.added', function (e) {
-				var _json_data = arguments[0];
-				_utils2.default.emitter.emit('step.method.show.adding', _json_data); // 要改了，先不傳這事件?!
-			});
+					if (_str_timming === _imageDataComputeProcess2.default.TIMMING_RESET) {
+						imageDataComputeMethod.changeData('', _json_other.origin_data);
+					} else {
+						_scope.getGlobalConst(_scope).emitter.emit('step.image.pushed');
+					}
+				});
 
-			_utils2.default.emitter.on('step.method.option.deleted', function (e) {
-				var _json_data = arguments[0];
-				_utils2.default.emitter.emit('step.method.show.deleting', _json_data); // 要改了，先不傳這事件?!
-			});
+				_scope.getGlobalConst(_scope).emitter.on('step.image.pushed', function (e) {
+					var _str_timming = arguments[0],
+					    _json_other = arguments[1] || {};
 
-			_utils2.default.emitter.on('init.data.changed', function (e) {
-				var _json_data = arguments[0];
-				imageDataComputeProcess.setStepImage([], _imageDataComputeProcess2.default.TIMMING_RESET, _json_data);
-			});
+					var _num_step_length = imageDataComputeProcess.getStepImage().length,
+					    _sary_step_method = stepMethod.getStepMethod();
+					var _sary_step_image = imageDataComputeProcess.getStepImage(),
+					    _json_data = _sary_step_image[_sary_step_image.length - 1];
 
-			_utils2.default.emitter.on('step.image.success.loaded', function (e) {
-				var _json = arguments[0],
-				    _str_method = _json.method;
+					if (_num_step_length < _sary_step_method.length) {
+						// 先處理圖片
+						imageDataComputeMethod.changeData(_sary_step_method[_num_step_length].method, _json_data.data);
+					} else {
+						// 圖片處理好了，我們現在要準備預覽
+						_scope.getGlobalConst(_scope).emitter.emit('step.image.final.step.computed', _json_data);
+						console.log('******************* 預覽圖片!! *******************');
+					}
+				});
+			}
 
-				if (_str_method === _Settings2.default.METHOD_SNOW) {
-					imageDataComputeMethod.methodSnow(_json);
-				} else if (_str_method === _Settings2.default.METHOD_DOT) {
-					imageDataComputeMethod.methodDot(_json);
-				} else if (_str_method === _Settings2.default.METHOD_ALPHA) {
-					imageDataComputeMethod.methodAlpha(_json);
-				} else if (_str_method === _Settings2.default.METHOD_GRAY) {
-					imageDataComputeMethod.methodGray(_json);
-				} else if (_str_method === _Settings2.default.METHOD_CONTRAST) {
-					imageDataComputeMethod.methodContrast(_json);
-				} else {
-					imageDataComputeMethod.methodOrigin(_json);
-				}
-			});
-
-			_utils2.default.emitter.on('step.image.error.loaded', function (e) {});
-
-			_utils2.default.emitter.on('step.image.success.computed', function (e) {
-				var _json_data = arguments[0];
-				if (_json_data && typeof _json_data.origin_data === 'string' && _json_data.origin_data !== '') {
-					imageDataComputeProcess.pushStepData(_json_data, stepMethod.getStepMethod());
-				}
-			});
-
-			_utils2.default.emitter.on('step.image.seted', function (e) {
-				var _str_timming = arguments[0],
-				    _json_other = arguments[1] || {};
-
-				if (_str_timming === _imageDataComputeProcess2.default.TIMMING_RESET) {
-					imageDataComputeMethod.changeData('', _json_other.origin_data);
-				} else {
-					_utils2.default.emitter.emit('step.image.pushed');
-				}
-			});
-
-			_utils2.default.emitter.on('step.image.pushed', function (e) {
-				var _str_timming = arguments[0],
-				    _json_other = arguments[1] || {};
-
-				var _num_step_length = imageDataComputeProcess.getStepImage().length,
-				    _sary_step_method = stepMethod.getStepMethod();
-				var _sary_step_image = imageDataComputeProcess.getStepImage(),
-				    _json_data = _sary_step_image[_sary_step_image.length - 1];
-
-				if (_num_step_length < _sary_step_method.length) {
-					// 先處理圖片
-					imageDataComputeMethod.changeData(_sary_step_method[_num_step_length].method, _json_data.data);
-				} else {
-					// 圖片處理好了，我們現在要準備預覽
-					_utils2.default.emitter.emit('step.image.final.step.computed', _json_data);
-					console.log('******************* 預覽圖片!! *******************');
-				}
-			});
+			return _this;
 		}
-	};
+
+		return PictureDraw;
+	})(_globalConst2.default);
 
 	exports.default = PictureDraw;
 	;
@@ -339,7 +367,7 @@
 
 /***/ },
 /* 5 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	'use strict';
 
@@ -349,9 +377,6 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Emitter = __webpack_require__(6); // 監聽事件
-	var emitter = new Emitter();
-
 	var Utils = function Utils() {
 		_classCallCheck(this, Utils);
 	};
@@ -360,7 +385,6 @@
 		return Date.now() + '-' + Math.floor(Math.random() * 100);
 	};
 
-	Utils.emitter = emitter;
 	exports.default = Utils;
 	;
 
@@ -542,36 +566,47 @@
 
 	var _Settings2 = _interopRequireDefault(_Settings);
 
-	var _utils = __webpack_require__(5);
+	var _globalConst = __webpack_require__(12);
 
-	var _utils2 = _interopRequireDefault(_utils);
+	var _globalConst2 = _interopRequireDefault(_globalConst);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var MainImageFilter = (function () {
-		function MainImageFilter(obj, json_size) {
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var MainImageFilter = (function (_GlobalConst) {
+		_inherits(MainImageFilter, _GlobalConst);
+
+		function MainImageFilter(obj, json_size, json_tools) {
 			_classCallCheck(this, MainImageFilter);
 
-			this.WEAK_MAP = new WeakMap();
+			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(MainImageFilter).call(this));
 
-			this.initConst = function (object) {
-				var data = {};
-				this.WEAK_MAP.set(object, data);
-				return data;
-			};
-			this.getConst = function (object) {
-				return this.WEAK_MAP.get(object);
-			};
-			this.addConst = function (object, str_key, data_value) {
-				var data = this.WEAK_MAP || {};
-				data[str_key] = data_value;
-				this.WEAK_MAP.set(object, data);
-				return data;
-			};
+			_this.setEmitter(json_tools.emitter);
 
-			this.defaultAction(obj, json_size);
+			// this.WEAK_MAP = new WeakMap();
+			// this.initGlobalConst = function( object ){
+			// 	let data = {};
+			// 	this.WEAK_MAP.set(object, data);
+			// 	return data;
+			// };
+			// this.getGlobalConst = function( object ){
+			// 	return this.WEAK_MAP.get(object);
+			// };
+			// this.addGlobalConst = function( object, str_key, data_value ){
+			// 	let data = this.WEAK_MAP || {};
+			// 	data[str_key] = data_value
+			// 	this.WEAK_MAP.set(object, data);
+			// 	return data;
+			// };
+
+			_this.defaultAction(obj, json_size);
+
+			return _this;
 		}
 
 		// 抓原始圖片資料
@@ -580,9 +615,19 @@
 			key: 'setImageInitData',
 			value: function setImageInitData(str_bas64) {
 				this.image_init_data = str_bas64;
-				_utils2.default.emitter.emit('init.data.changed', {
+				this.getEmitter().emit('init.data.changed', {
 					origin_data: str_bas64
 				});
+			}
+		}, {
+			key: 'setEmitter',
+			value: function setEmitter(object) {
+				this.emitter = object;
+			}
+		}, {
+			key: 'getEmitter',
+			value: function getEmitter() {
+				return this.emitter;
 			}
 
 			// 得到用來產生版形的區塊
@@ -590,7 +635,7 @@
 		}, {
 			key: 'getMainSection',
 			value: function getMainSection() {
-				return this.getConst(this).MAIN_SECTION;
+				return this.getGlobalConst(this).MAIN_SECTION;
 			}
 
 			// 在預覽產生前，把這東西元件設定src
@@ -598,7 +643,7 @@
 		}, {
 			key: 'getObjImagePreview',
 			value: function getObjImagePreview() {
-				return this.getConst(this).OBJ_IMAGE_PREVIEW;
+				return this.getGlobalConst(this).OBJ_IMAGE_PREVIEW;
 			}
 
 			// 效果選項的元件
@@ -606,7 +651,7 @@
 		}, {
 			key: 'getObjMethodSelect',
 			value: function getObjMethodSelect() {
-				return this.getConst(this).OBJ_METHOD_SELECT;
+				return this.getGlobalConst(this).OBJ_METHOD_SELECT;
 			}
 
 			// 選出來什麼效果選項的元件
@@ -614,7 +659,7 @@
 		}, {
 			key: 'getObjMethodResult',
 			value: function getObjMethodResult() {
-				return this.getConst(this).OBJ_METHOD_RESULT;
+				return this.getGlobalConst(this).OBJ_METHOD_RESULT;
 			}
 
 			// 得到Canvas預覽的區塊
@@ -622,7 +667,7 @@
 		}, {
 			key: 'getObjCanvasPreview',
 			value: function getObjCanvasPreview() {
-				return this.getConst(this).OBJ_CANVAS_PREVIEW;
+				return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW;
 			}
 
 			// 得到Canvas預覽的區塊
@@ -630,7 +675,7 @@
 		}, {
 			key: 'getObjCanvasPreview2d',
 			value: function getObjCanvasPreview2d() {
-				return this.getConst(this).OBJ_CANVAS_PREVIEW_2D;
+				return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW_2D;
 			}
 
 			// 得到Canvas預覽的區塊長寬
@@ -638,7 +683,7 @@
 		}, {
 			key: 'getPreviewSize',
 			value: function getPreviewSize() {
-				return this.getConst(this).PREVIEW_SIZE;
+				return this.getGlobalConst(this).PREVIEW_SIZE;
 			}
 
 			// 得到上傳圖片的按鈕
@@ -646,7 +691,7 @@
 		}, {
 			key: 'getObjUpload',
 			value: function getObjUpload() {
-				return this.getConst(this).OBJ_UPLOAD;
+				return this.getGlobalConst(this).OBJ_UPLOAD;
 			}
 
 			// 上傳檔案
@@ -658,7 +703,7 @@
 				var _obj_upload = document.createElement('input');
 				_obj_upload.type = "file";
 				this.uploadAction.call(_obj_upload, this);
-				this.addConst(this, 'OBJ_UPLOAD', _obj_upload);
+				this.addGlobalConst(this, 'OBJ_UPLOAD', _obj_upload);
 				_obj_upload_section.appendChild(_obj_upload);
 				return _obj_upload_section;
 			}
@@ -674,12 +719,12 @@
 				_obj_canvas_preview.setAttribute('data-obj', 'preview');
 				_obj_canvas_preview.width = _json_size.width;
 				_obj_canvas_preview.height = _json_size.height;
-				this.addConst(this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview);
+				this.addGlobalConst(this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview);
 
 				_obj_canvas_section.appendChild(_obj_canvas_preview);
 
 				var _obj_canvas_2d = _obj_canvas_preview.getContext('2d');
-				this.addConst(this, 'OBJ_CANVAS_PREVIEW_2D', _obj_canvas_2d);
+				this.addGlobalConst(this, 'OBJ_CANVAS_PREVIEW_2D', _obj_canvas_2d);
 
 				return _obj_canvas_section;
 			}
@@ -714,9 +759,9 @@
 				_obj_method_section.appendChild(_obj_method_select);
 				_obj_method_section.appendChild(_obj_method_button);
 
-				this.addConst(this, 'OBJ_METHOD_SECTION', _obj_method_section);
-				this.addConst(this, 'OBJ_METHOD_RESULT', _obj_method_result);
-				this.addConst(this, 'OBJ_METHOD_SELECT', _obj_method_select);
+				this.addGlobalConst(this, 'OBJ_METHOD_SECTION', _obj_method_section);
+				this.addGlobalConst(this, 'OBJ_METHOD_RESULT', _obj_method_result);
+				this.addGlobalConst(this, 'OBJ_METHOD_SELECT', _obj_method_select);
 				return _obj_method_section;
 			}
 
@@ -750,7 +795,7 @@
 			key: 'defaultAction',
 			value: function defaultAction(obj, json_size) {
 				var _scope = this;
-				_scope.initConst(this);
+				_scope.initGlobalConst(this);
 				json_size = json_size || {};
 				json_size.width = json_size.width > 0 ? json_size.width : 600; // 預覽圓片大小
 				json_size.height = json_size.height > 0 ? json_size.height : 450; // 預覽圓片大小
@@ -761,9 +806,9 @@
 
 					_scope.imagePreviewOnLoad.call(_obj_image, this);
 
-					_scope.addConst(this, 'MAIN_SECTION', obj);
-					_scope.addConst(this, 'PREVIEW_SIZE', json_size);
-					_scope.addConst(this, 'OBJ_IMAGE_PREVIEW', _obj_image);
+					_scope.addGlobalConst(this, 'MAIN_SECTION', obj);
+					_scope.addGlobalConst(this, 'PREVIEW_SIZE', json_size);
+					_scope.addGlobalConst(this, 'OBJ_IMAGE_PREVIEW', _obj_image);
 					_scope.makeTempate();
 				}
 			}
@@ -800,7 +845,7 @@
 				_obj_self.onclick = function (e) {
 					var _str_method_value = scope_calss.getObjMethodSelect().value;
 					if (_str_method_value !== '') {
-						_utils2.default.emitter.emit('step.method.pushing', {
+						scope_calss.getEmitter().emit('step.method.pushing', {
 							method: _str_method_value
 						});
 					} else {
@@ -817,7 +862,7 @@
 				var _obj_self = this;
 				_obj_self.onclick = function (e) {
 					// 先直接發出刪除methodid的事件，之後再來擴充
-					_utils2.default.emitter.emit('step.method.splicing', {
+					scope_calss.getEmitter().emit('step.method.splicing', {
 						method: _obj_self.data.method,
 						method_id: _obj_self.data.method_id,
 						method_btn: this
@@ -827,7 +872,7 @@
 		}]);
 
 		return MainImageFilter;
-	})();
+	})(_globalConst2.default);
 
 	exports.default = MainImageFilter;
 	;
@@ -843,10 +888,6 @@
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-
-	var _utils = __webpack_require__(5);
-
-	var _utils2 = _interopRequireDefault(_utils);
 
 	var _ImageDataComputeSize2 = __webpack_require__(9);
 
@@ -865,12 +906,14 @@
 	var ImageDataComputeMethod = (function (_ImageDataComputeSize) {
 		_inherits(ImageDataComputeMethod, _ImageDataComputeSize);
 
-		function ImageDataComputeMethod() {
+		function ImageDataComputeMethod(json_tools) {
 			_classCallCheck(this, ImageDataComputeMethod);
 
 			var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ImageDataComputeMethod).call(this));
 
 			var _scope = _this;
+
+			_scope.setEmitter(json_tools.emitter);
 
 			_scope.obj_canvas = document.createElement('canvas');
 			_scope.obj_canvas_2d = _scope.obj_canvas.getContext('2d');
@@ -890,7 +933,7 @@
 					_scope.setComputeWidth(_num_width); // 在此先用圖片本身的長寬去做的
 					_scope.setComputeHeight(_num_height); // 在此先用圖片本身的長寬去做的
 
-					_utils2.default.emitter.emit('step.image.success.loaded', {
+					_scope.getEmitter().emit('step.image.success.loaded', {
 						origin_data: this.src,
 						method: _scope.getPainterMethod()
 					});
@@ -900,7 +943,7 @@
 			};
 
 			_scope.obj_image.error = function () {
-				_utils2.default.emitter.emit('step.image.error.loaded', {
+				_scope.getEmitter().emit('step.image.error.loaded', {
 					origin_data: this.src
 				});
 			};
@@ -913,6 +956,16 @@
 			value: function getPainterMethod() {
 				var _scope = this;
 				return _scope.painter_method;
+			}
+		}, {
+			key: 'getEmitter',
+			value: function getEmitter() {
+				return this.emitter;
+			}
+		}, {
+			key: 'setEmitter',
+			value: function setEmitter(object) {
+				this.emitter = object;
 			}
 		}, {
 			key: 'changeData',
@@ -930,7 +983,7 @@
 				var _scope = this;
 				// let _data_url = _scope.obj_canvas.toDataURL();
 
-				// Utils.emitter.emit('step.image.success.computed', {
+				// _scope.getEmitter().emit('step.image.success.computed', {
 				// 	origin_data: json.origin_data,
 				// 	data: _data_url
 				// });
@@ -1126,7 +1179,7 @@
 					// _json_emit.method = json.method ;
 				}
 
-				_utils2.default.emitter.emit('step.image.success.computed', _json_emit);
+				_scope.getEmitter().emit('step.image.success.computed', _json_emit);
 			}
 		}]);
 
@@ -1194,9 +1247,11 @@
 
 /***/ },
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	'use strict';
+
+	// 利用事件的補捉，來記錄我們的圖片運算狀況
 
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
@@ -1204,28 +1259,30 @@
 		value: true
 	});
 
-	var _utils = __webpack_require__(5);
-
-	var _utils2 = _interopRequireDefault(_utils);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	// 利用事件的補捉，來記錄我們的圖片運算狀況
-
 	var ImageDataComputeProcess = (function () {
-		function ImageDataComputeProcess() {
+		function ImageDataComputeProcess(json_tools) {
 			_classCallCheck(this, ImageDataComputeProcess);
 
-			var _scope = this;
 			this.step_image = [];
+			this.setEmitter(json_tools.emitter);
 		}
 
 		_createClass(ImageDataComputeProcess, [{
+			key: 'getEmitter',
+			value: function getEmitter() {
+				return this.emitter;
+			}
+		}, {
 			key: 'getStepImage',
 			value: function getStepImage() {
 				return this.step_image || [];
+			}
+		}, {
+			key: 'setEmitter',
+			value: function setEmitter(object) {
+				this.emitter = object;
 			}
 		}, {
 			key: 'setStepImage',
@@ -1241,7 +1298,7 @@
 
 				this.step_image = _sary;
 
-				_utils2.default.emitter.emit('step.image.seted', str_timmimg, json_other);
+				_scope.getEmitter().emit('step.image.seted', str_timmimg, json_other);
 			}
 		}, {
 			key: 'pushStepData',
@@ -1264,7 +1321,7 @@
 
 				console.log('_scope.step_image :: ', _scope.step_image);
 
-				_utils2.default.emitter.emit('step.image.pushed');
+				_scope.getEmitter().emit('step.image.pushed');
 			}
 		}]);
 
@@ -1301,7 +1358,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var StepMethod = (function () {
-		function StepMethod() {
+		function StepMethod(json_tools) {
 			_classCallCheck(this, StepMethod);
 
 			this.init_step_method = [{
@@ -1311,6 +1368,7 @@
 			var _sary_step_method_other = [];
 
 			this.step_method = this.init_step_method.concat(_sary_step_method_other);
+			this.setEmitter(json_tools.emitter);
 		}
 
 		_createClass(StepMethod, [{
@@ -1319,13 +1377,23 @@
 				return this.step_method || [];
 			}
 		}, {
+			key: 'getEmitter',
+			value: function getEmitter() {
+				return this.emitter;
+			}
+		}, {
+			key: 'setEmitter',
+			value: function setEmitter(object) {
+				this.emitter = object;
+			}
+		}, {
 			key: 'pushStepMethod',
 			value: function pushStepMethod(json) {
 				if (json !== undefined) {
 					json.method_id = json.method_id || _utils2.default.createMethodId();
 					this.step_method.push(json);
 					console.log('this.step_method :: ', this.step_method);
-					_utils2.default.emitter.emit('step.method.option.added', json);
+					this.getEmitter().emit('step.method.option.added', json);
 				}
 			}
 		}, {
@@ -1341,7 +1409,7 @@
 					}
 					if (_num_index >= 0) {
 						this.step_method.splice(_num_index, 1);
-						_utils2.default.emitter.emit('step.method.option.deleted', json);
+						this.getEmitter().emit('step.method.option.deleted', json);
 					}
 				}
 			}
@@ -1351,6 +1419,42 @@
 	})();
 
 	exports.default = StepMethod;
+	;
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var GlobalConst = function GlobalConst() {
+	    _classCallCheck(this, GlobalConst);
+
+	    this.WEAK_MAP = new WeakMap();
+
+	    this.initGlobalConst = function (object) {
+	        var data = {};
+	        this.WEAK_MAP.set(object, data);
+	        return data;
+	    };
+	    this.getGlobalConst = function (object) {
+	        return this.WEAK_MAP.get(object);
+	    };
+	    this.addGlobalConst = function (object, str_key, data_value) {
+	        var data = this.WEAK_MAP || {};
+	        data[str_key] = data_value;
+	        this.WEAK_MAP.set(object, data);
+	        return data;
+	    };
+	};
+
+	exports.default = GlobalConst;
 	;
 
 /***/ }

@@ -1,15 +1,15 @@
 'use strict';
 
-import Utils from './utils';
-
 import ImageDataComputeSize from './ImageDataComputeSize';
 
 // 運算的方式
 export default class ImageDataComputeMethod extends ImageDataComputeSize {
-	constructor(){
+	constructor( json_tools ){
 		super();
 
 		let _scope = this;
+
+		_scope.setEmitter( json_tools.emitter );
 
 		_scope.obj_canvas = document.createElement('canvas');
 		_scope.obj_canvas_2d = _scope.obj_canvas.getContext('2d');
@@ -29,7 +29,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 				_scope.setComputeWidth( _num_width ); // 在此先用圖片本身的長寬去做的
 				_scope.setComputeHeight( _num_height ); // 在此先用圖片本身的長寬去做的
 
-				Utils.emitter.emit('step.image.success.loaded', {
+				_scope.getEmitter().emit('step.image.success.loaded', {
 					origin_data: this.src,
 					method: _scope.getPainterMethod()
 				});
@@ -41,7 +41,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 		}
 
 		_scope.obj_image.error = function(){
-			Utils.emitter.emit('step.image.error.loaded', {
+			_scope.getEmitter().emit('step.image.error.loaded', {
 				origin_data: this.src
 			});
 		}
@@ -51,6 +51,13 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 	getPainterMethod(){
 		let _scope = this;
 		return _scope.painter_method;
+	}
+	getEmitter(){
+		return this.emitter ;
+	}
+
+	setEmitter(object){
+		this.emitter = object ;
 	}
 
 	changeData( str_painter_method, str_base64 ){
@@ -64,7 +71,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 		let _scope = this;
 			// let _data_url = _scope.obj_canvas.toDataURL();
 
-			// Utils.emitter.emit('step.image.success.computed', {
+			// _scope.getEmitter().emit('step.image.success.computed', {
 			// 	origin_data: json.origin_data,
 			// 	data: _data_url
 			// });
@@ -250,7 +257,7 @@ export default class ImageDataComputeMethod extends ImageDataComputeSize {
 			// _json_emit.method = json.method ;
 		}
 
-		Utils.emitter.emit('step.image.success.computed', _json_emit);
+		_scope.getEmitter().emit('step.image.success.computed', _json_emit);
 	}
 
 }

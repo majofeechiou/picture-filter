@@ -1,17 +1,23 @@
 'use strict';
 
-import Utils from './utils';
-
 // 利用事件的補捉，來記錄我們的圖片運算狀況
 export default class ImageDataComputeProcess {
-	constructor(){
-		let _scope = this;
+	constructor( json_tools ){
 		this.step_image = [];
+		this.setEmitter( json_tools.emitter );
 	}
 	static TIMMING_RESET = 'reset';
 	static TIMMING_SET   = 'set';
+
+	getEmitter(){
+		return this.emitter ;
+	}
 	getStepImage(){
 		return this.step_image || [] ;
+	}
+
+	setEmitter(object){
+		this.emitter = object ;
 	}
 	setStepImage( sary, str_timmimg, json_other ){
 
@@ -25,9 +31,10 @@ export default class ImageDataComputeProcess {
 
 		this.step_image = _sary ;
 
-		Utils.emitter.emit('step.image.seted', str_timmimg, json_other);
+		_scope.getEmitter().emit('step.image.seted', str_timmimg, json_other);
 
 	}
+
 	pushStepData( json_data, sary_step_method ){
 		let _scope = this;
 
@@ -46,7 +53,7 @@ export default class ImageDataComputeProcess {
 
 		console.log( '_scope.step_image :: ', _scope.step_image );
 
-		Utils.emitter.emit('step.image.pushed');
+		_scope.getEmitter().emit('step.image.pushed');
 
 	}
 

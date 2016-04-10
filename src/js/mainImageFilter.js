@@ -1,28 +1,30 @@
 'use strict';
 
 import Settings from './Settings';
-import Utils from './utils';
+import GlobalConst from './globalConst';
 
-export default class MainImageFilter{
+export default class MainImageFilter extends GlobalConst {
 
-	constructor( obj, json_size ){
+	constructor( obj, json_size, json_tools ){
+		super();
 
-		this.WEAK_MAP = new WeakMap();
+		this.setEmitter(json_tools.emitter);
 
-		this.initConst = function( object ){
-			let data = {};
-			this.WEAK_MAP.set(object, data);
-			return data;
-		};
-		this.getConst = function( object ){
-			return this.WEAK_MAP.get(object);
-		};
-		this.addConst = function( object, str_key, data_value ){
-			let data = this.WEAK_MAP || {};
-			data[str_key] = data_value
-			this.WEAK_MAP.set(object, data);
-			return data;
-		};
+		// this.WEAK_MAP = new WeakMap();
+		// this.initGlobalConst = function( object ){
+		// 	let data = {};
+		// 	this.WEAK_MAP.set(object, data);
+		// 	return data;
+		// };
+		// this.getGlobalConst = function( object ){
+		// 	return this.WEAK_MAP.get(object);
+		// };
+		// this.addGlobalConst = function( object, str_key, data_value ){
+		// 	let data = this.WEAK_MAP || {};
+		// 	data[str_key] = data_value
+		// 	this.WEAK_MAP.set(object, data);
+		// 	return data;
+		// };
 
 		this.defaultAction( obj, json_size );
 
@@ -31,49 +33,57 @@ export default class MainImageFilter{
 	// 抓原始圖片資料
 	setImageInitData( str_bas64 ){
 		this.image_init_data = str_bas64 ;
-		Utils.emitter.emit('init.data.changed', {
+		this.getEmitter().emit('init.data.changed', {
 			origin_data: str_bas64
 		});
 	}
 
+	setEmitter(object){
+		this.emitter = object ;
+	}
+
+	getEmitter(){
+		return this.emitter ;
+	}
+
 	// 得到用來產生版形的區塊
 	getMainSection(){
-		return this.getConst(this).MAIN_SECTION;
+		return this.getGlobalConst(this).MAIN_SECTION;
 	}
 
 	// 在預覽產生前，把這東西元件設定src
 	getObjImagePreview(){
-		return this.getConst(this).OBJ_IMAGE_PREVIEW;
+		return this.getGlobalConst(this).OBJ_IMAGE_PREVIEW;
 	}
 
 	// 效果選項的元件
 	getObjMethodSelect(){
-		return this.getConst(this).OBJ_METHOD_SELECT;
+		return this.getGlobalConst(this).OBJ_METHOD_SELECT;
 	}
 
 	// 選出來什麼效果選項的元件
 	getObjMethodResult(){
-		return this.getConst(this).OBJ_METHOD_RESULT;
+		return this.getGlobalConst(this).OBJ_METHOD_RESULT;
 	}
 
 	// 得到Canvas預覽的區塊
 	getObjCanvasPreview(){
-		return this.getConst(this).OBJ_CANVAS_PREVIEW;
+		return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW;
 	}
 
 	// 得到Canvas預覽的區塊
 	getObjCanvasPreview2d(){
-		return this.getConst(this).OBJ_CANVAS_PREVIEW_2D;
+		return this.getGlobalConst(this).OBJ_CANVAS_PREVIEW_2D;
 	}
 
 	// 得到Canvas預覽的區塊長寬
 	getPreviewSize(){
-		return this.getConst(this).PREVIEW_SIZE;
+		return this.getGlobalConst(this).PREVIEW_SIZE;
 	}
 
 	// 得到上傳圖片的按鈕
 	getObjUpload(){
-		return this.getConst(this).OBJ_UPLOAD;
+		return this.getGlobalConst(this).OBJ_UPLOAD;
 	}
 
 	// 上傳檔案
@@ -82,7 +92,7 @@ export default class MainImageFilter{
 		let _obj_upload 	= document.createElement('input');
 		_obj_upload.type	= "file";
 		this.uploadAction.call( _obj_upload, this );
-		this.addConst( this, 'OBJ_UPLOAD', _obj_upload );
+		this.addGlobalConst( this, 'OBJ_UPLOAD', _obj_upload );
 		_obj_upload_section.appendChild(_obj_upload);
 		return _obj_upload_section;
 	}
@@ -95,12 +105,12 @@ export default class MainImageFilter{
 		_obj_canvas_preview.setAttribute('data-obj','preview');
 		_obj_canvas_preview.width = _json_size.width;
 		_obj_canvas_preview.height = _json_size.height;
-		this.addConst( this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview );
+		this.addGlobalConst( this, 'OBJ_CANVAS_PREVIEW', _obj_canvas_preview );
 
 		_obj_canvas_section.appendChild(_obj_canvas_preview);
 
 		let _obj_canvas_2d = _obj_canvas_preview.getContext('2d');
-		this.addConst( this, 'OBJ_CANVAS_PREVIEW_2D', _obj_canvas_2d );
+		this.addGlobalConst( this, 'OBJ_CANVAS_PREVIEW_2D', _obj_canvas_2d );
 
 		return _obj_canvas_section;
 	}
@@ -132,9 +142,9 @@ export default class MainImageFilter{
 		_obj_method_section.appendChild(_obj_method_select);
 		_obj_method_section.appendChild(_obj_method_button);
 
-		this.addConst( this, 'OBJ_METHOD_SECTION', _obj_method_section );
-		this.addConst( this, 'OBJ_METHOD_RESULT', _obj_method_result );
-		this.addConst( this, 'OBJ_METHOD_SELECT', _obj_method_select );
+		this.addGlobalConst( this, 'OBJ_METHOD_SECTION', _obj_method_section );
+		this.addGlobalConst( this, 'OBJ_METHOD_RESULT', _obj_method_result );
+		this.addGlobalConst( this, 'OBJ_METHOD_SELECT', _obj_method_select );
 		return _obj_method_section;
 	}
 
@@ -166,7 +176,7 @@ export default class MainImageFilter{
 
 	defaultAction( obj, json_size ){
 		let _scope = this;
-		_scope.initConst(this);
+		_scope.initGlobalConst(this);
 		json_size = json_size || {} ;
 		json_size.width = (json_size.width>0)? json_size.width : 600 ; // 預覽圓片大小
 		json_size.height = (json_size.height>0)? json_size.height : 450 ; // 預覽圓片大小
@@ -177,9 +187,9 @@ export default class MainImageFilter{
 
 			_scope.imagePreviewOnLoad.call( _obj_image, this );
 
-			_scope.addConst( this, 'MAIN_SECTION', obj );
-			_scope.addConst( this, 'PREVIEW_SIZE', json_size );
-			_scope.addConst( this, 'OBJ_IMAGE_PREVIEW', _obj_image );
+			_scope.addGlobalConst( this, 'MAIN_SECTION', obj );
+			_scope.addGlobalConst( this, 'PREVIEW_SIZE', json_size );
+			_scope.addGlobalConst( this, 'OBJ_IMAGE_PREVIEW', _obj_image );
 			_scope.makeTempate();
 		}
 
@@ -211,7 +221,7 @@ export default class MainImageFilter{
 		_obj_self.onclick = function( e ){
 			let _str_method_value = scope_calss.getObjMethodSelect().value;
 			if( _str_method_value!=='' ){
-				Utils.emitter.emit('step.method.pushing',{
+				scope_calss.getEmitter().emit('step.method.pushing',{
 					method: _str_method_value
 				});
 			}else{
@@ -225,7 +235,7 @@ export default class MainImageFilter{
 		let _obj_self = this;
 		_obj_self.onclick = function( e ){
 			// 先直接發出刪除methodid的事件，之後再來擴充
-			Utils.emitter.emit('step.method.splicing',{
+			scope_calss.getEmitter().emit('step.method.splicing',{
 				method: _obj_self.data.method,
 				method_id: _obj_self.data.method_id,
 				method_btn:this

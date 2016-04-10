@@ -4,7 +4,7 @@ import Settings from './Settings';
 import Utils from './utils';
 
 export default class StepMethod {
-	constructor(){
+	constructor(json_tools){
 
 		this.init_step_method = [ 
 			{
@@ -15,10 +15,18 @@ export default class StepMethod {
 		let _sary_step_method_other = [];
 
 		this.step_method = this.init_step_method.concat( _sary_step_method_other );
+		this.setEmitter( json_tools.emitter );
 	}
 
 	getStepMethod(){
 		return this.step_method || [] ;
+	}
+	getEmitter(){
+		return this.emitter ;
+	}
+
+	setEmitter(object){
+		this.emitter = object ;
 	}
 
 	pushStepMethod( json ){
@@ -26,7 +34,7 @@ export default class StepMethod {
 			json.method_id = json.method_id || Utils.createMethodId();
 			this.step_method.push( json );
 			console.log( 'this.step_method :: ', this.step_method );
-			Utils.emitter.emit('step.method.option.added', json);
+			this.getEmitter().emit('step.method.option.added', json);
 		}
 	}
 
@@ -41,7 +49,7 @@ export default class StepMethod {
 			}
 			if( _num_index>=0 ){
 				this.step_method.splice(_num_index,1);
-				Utils.emitter.emit('step.method.option.deleted', json);
+				this.getEmitter().emit('step.method.option.deleted', json);
 			}
 		}
 	}

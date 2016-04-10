@@ -6,27 +6,35 @@ import MainImageFilter from './mainImageFilter';
 import ImageDataComputeMethod from './imageDataComputeMethod';
 import ImageDataComputeProcess from './imageDataComputeProcess';
 import StepMethod from './stepMethod';
+import GlobalConst from './globalConst';
+import Emitter from '../../node_modules/component-emitter/index.js';
 
-export default class PictureDraw {
+export default class PictureDraw extends GlobalConst {
 	constructor( obj_main, json_size ){
+		super();
+
+		let _scope = this;
 
 		json_size = json_size || {} ;
 
-		let mainImageFilter = new MainImageFilter( obj_main, json_size );
-		let stepMethod = new StepMethod();
-		let imageDataComputeProcess = new ImageDataComputeProcess();
-		let imageDataComputeMethod = new ImageDataComputeMethod();
+		let emitter = new Emitter();
+		_scope.addGlobalConst( _scope, 'emitter', emitter );
+
+		let mainImageFilter = new MainImageFilter( obj_main, json_size, {emitter:emitter} );
+		let stepMethod = new StepMethod({emitter:emitter});
+		let imageDataComputeProcess = new ImageDataComputeProcess({emitter:emitter});
+		let imageDataComputeMethod = new ImageDataComputeMethod({emitter:emitter});
 
 		if( obj_main!==undefined ){
 
 			// 用完運算結束後，我們要用出預覽圖
-			Utils.emitter.on('step.image.final.step.computed', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
 				let _json_data = arguments[0];
 				mainImageFilter.getObjImagePreview().src = _json_data.data;
 			});
 
 			// 新增效果
-			Utils.emitter.on('step.method.show.adding', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.method.show.adding', function(e){
 				// 新增顯示method的文字
 				let _json_data = arguments[0];
 				let _obj_result = document.createElement('span');
@@ -49,7 +57,7 @@ export default class PictureDraw {
 					let _num_width = imageDataComputeMethod.getComputeWidth();
 					let _num_height = imageDataComputeMethod.getComputeHeight();
 
-					Utils.emitter.emit('step.image.success.loaded', {
+					_scope.getGlobalConst(_scope).emitter.emit('step.image.success.loaded', {
 						origin_data: _sary_step_data[(_sary_step_data.length-1)].data, // 目前得到的最後一次運算結果
 						method: _json_data.method
 					});
@@ -58,7 +66,7 @@ export default class PictureDraw {
 
 			});
 
-			Utils.emitter.on('step.method.show.deleting', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.method.show.deleting', function(e){
 				let _json_data = arguments[0];
 				let _sary_step_data = imageDataComputeProcess.getStepImage();
 
@@ -88,30 +96,30 @@ export default class PictureDraw {
 
 			});
 
-			Utils.emitter.on('step.method.pushing',function(){
+			_scope.getGlobalConst(_scope).emitter.on('step.method.pushing',function(){
 				stepMethod.pushStepMethod(...arguments);
 			});
 
-			Utils.emitter.on('step.method.splicing',function(){
+			_scope.getGlobalConst(_scope).emitter.on('step.method.splicing',function(){
 				stepMethod.spliceStepMethod(...arguments);
 			});
 
-			Utils.emitter.on('step.method.option.added', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.method.option.added', function(e){
 				let _json_data = arguments[0];
-				Utils.emitter.emit('step.method.show.adding', _json_data); // 要改了，先不傳這事件?!
+				_scope.getGlobalConst(_scope).emitter.emit('step.method.show.adding', _json_data); // 要改了，先不傳這事件?!
 			});
 
-			Utils.emitter.on('step.method.option.deleted', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.method.option.deleted', function(e){
 				let _json_data = arguments[0];
-				Utils.emitter.emit('step.method.show.deleting', _json_data); // 要改了，先不傳這事件?!
+				_scope.getGlobalConst(_scope).emitter.emit('step.method.show.deleting', _json_data); // 要改了，先不傳這事件?!
 			});
 
-			Utils.emitter.on('init.data.changed', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('init.data.changed', function(e){
 				let _json_data = arguments[0];
 				imageDataComputeProcess.setStepImage( [], ImageDataComputeProcess.TIMMING_RESET, _json_data );
 			});
 
-			Utils.emitter.on('step.image.success.loaded', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.image.success.loaded', function(e){
 				let _json = arguments[0],
 					_str_method = _json.method;
 
@@ -136,29 +144,29 @@ export default class PictureDraw {
 
 			});
 
-			Utils.emitter.on('step.image.error.loaded', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.image.error.loaded', function(e){
 				( '錯誤!!' );
 			});
 
-			Utils.emitter.on('step.image.success.computed', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.image.success.computed', function(e){
 				let _json_data = arguments[0];
 				if( _json_data && (typeof _json_data.origin_data === 'string') && (_json_data.origin_data!=='') ){
 					imageDataComputeProcess.pushStepData( _json_data, stepMethod.getStepMethod() );
 				}
 			});
 
-			Utils.emitter.on('step.image.seted', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.image.seted', function(e){
 				let _str_timming = arguments[0],
 					_json_other = arguments[1] || {};
 
 				if( _str_timming===ImageDataComputeProcess.TIMMING_RESET ){
 					imageDataComputeMethod.changeData( '', _json_other.origin_data );
 				}else{
-					Utils.emitter.emit('step.image.pushed');
+					_scope.getGlobalConst(_scope).emitter.emit('step.image.pushed');
 				}
 			});
 
-			Utils.emitter.on('step.image.pushed', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('step.image.pushed', function(e){
 				let _str_timming = arguments[0],
 					_json_other = arguments[1] || {};
 
@@ -173,7 +181,7 @@ export default class PictureDraw {
 					imageDataComputeMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
 				}else{
 					// 圖片處理好了，我們現在要準備預覽
-					Utils.emitter.emit('step.image.final.step.computed', _json_data);
+					_scope.getGlobalConst(_scope).emitter.emit('step.image.final.step.computed', _json_data);
 					console.log('******************* 預覽圖片!! *******************');
 				}
 

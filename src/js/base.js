@@ -14,6 +14,7 @@ import PictureDraw from "./picture-draw";
 	// new PictureDraw( _obj_main[0], {} );
 	let pictureDraw = new PictureDraw( _obj_main[0], {} );
 
-	// new PictureDraw( _obj_main[1], {width: 250, height: 100} ); 
+    new PictureDraw( _obj_main[1], {width: 250, height: 100} ); 
+	new PictureDraw( _obj_main[2], {width: 250, height: 100} ); 
 
 })();
