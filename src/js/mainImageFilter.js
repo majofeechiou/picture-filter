@@ -1,5 +1,6 @@
 'use strict';
 
+import Utils from './utils';
 import Settings from './Settings';
 import GlobalConst from './globalConst';
 
@@ -9,25 +10,15 @@ export default class MainImageFilter extends GlobalConst {
 		super();
 
 		this.setEmitter( json_tools.emitter );
-
-		// this.WEAK_MAP = new WeakMap();
-		// this.initGlobalConst = function( object ){
-		// 	let data = {};
-		// 	this.WEAK_MAP.set(object, data);
-		// 	return data;
-		// };
-		// this.getGlobalConst = function( object ){
-		// 	return this.WEAK_MAP.get(object);
-		// };
-		// this.addGlobalConst = function( object, str_key, data_value ){
-		// 	let data = this.WEAK_MAP || {};
-		// 	data[str_key] = data_value
-		// 	this.WEAK_MAP.set(object, data);
-		// 	return data;
-		// };
+		this.setModuleId( Utils.createUniqueId() );
 
 		this.defaultAction( obj, json_size );
+		console.log( 'json_size :: ', json_size );
 
+	}
+
+	setModuleId( str ){
+		this.module_id = str;
 	}
 
 	// 抓原始圖片資料
@@ -44,6 +35,10 @@ export default class MainImageFilter extends GlobalConst {
 
 	getEmitter(){
 		return this.emitter ;
+	}
+
+	getModuleId(){
+		return this.module_id ;
 	}
 
 	// 得到用來產生版形的區塊
@@ -148,6 +143,98 @@ export default class MainImageFilter extends GlobalConst {
 		return _obj_method_section;
 	}
 
+	// 輸出圖片尺寸
+	returnSizeSection(){
+		let _obj_size_section = document.createElement('div');
+		_obj_size_section.innerText = '圖片輸出尺寸';
+
+		let _obj_scale_section = document.createElement('div');
+		let _obj_custom_section = document.createElement('div');
+
+		// 圖片尺寸 - 原圖等比縮放 - radio
+		let _obj_size_scale = document.createElement('input');
+		_obj_size_scale.type = 'radio';
+		_obj_size_scale.name = 'size_'+this.getModuleId();
+		_obj_size_scale.value = 'scale';
+		_obj_size_scale.checked = true;
+		this.addGlobalConst( this, 'OBJ_SIZE_SCALE_RADIO', _obj_size_scale );
+		// 圖片尺寸 - 原圖等比縮放 - label
+		let _obj_label_scale = document.createElement('label');
+		_obj_label_scale.appendChild(_obj_size_scale);
+		_obj_label_scale.insertAdjacentHTML('beforeend','原圖等比縮放');
+		// 圖片尺寸 - 自訂尺寸 - input
+		let _obj_scale_range = document.createElement('input');
+		_obj_scale_range.type = 'range';
+		_obj_scale_range.name = 'range_'+this.getModuleId();
+		_obj_scale_range.value = 100;
+		_obj_scale_range.min = 1;
+		_obj_scale_range.max = 200;
+
+		_obj_scale_section.appendChild( _obj_label_scale );
+		_obj_scale_section.appendChild( _obj_scale_range );
+
+		// 圖片尺寸 - 自訂尺寸 - radio
+		let _obj_size_custom = document.createElement('input');
+		_obj_size_custom.type = 'radio';
+		_obj_size_custom.name = 'size_'+this.getModuleId();
+		_obj_size_custom.value = 'custom';
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom );
+		// 圖片尺寸 - 自訂尺寸 - label
+		let _obj_label_custom = document.createElement('label');
+		_obj_label_custom.appendChild(_obj_size_custom);
+		_obj_label_custom.insertAdjacentHTML('beforeend','自訂尺寸');
+		let _obj_custom_width = document.createElement('input');
+		_obj_custom_width.type = 'number';
+		_obj_custom_width.name = 'custom_width_'+this.getModuleId();
+		_obj_custom_width.min = 10;
+		_obj_custom_width.max = 3000;
+		_obj_custom_width.value = 200;
+		let _obj_custom_height = document.createElement('input');
+		_obj_custom_height.type = 'number';
+		_obj_custom_height.name = 'custom_height_'+this.getModuleId();
+		_obj_custom_height.min = 10;
+		_obj_custom_height.max = 3000;
+		_obj_custom_height.value = 200;
+		// 圖片尺寸 - 自訂尺寸 - cover - radio
+		let _obj_size_custom_cover = document.createElement('input');
+		_obj_size_custom_cover.type = 'radio';
+		_obj_size_custom_cover.name = 'custom_'+this.getModuleId();
+		_obj_size_custom_cover.value = 'cover';
+		_obj_size_custom_cover.checked = true;
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_cover );
+		// 圖片尺寸 - 自訂尺寸 - cover - label
+		let _obj_label_custom_cover = document.createElement('label');
+		_obj_label_custom_cover.appendChild(_obj_size_custom_cover);
+		_obj_label_custom_cover.insertAdjacentHTML('beforeend','COVER');
+		// 圖片尺寸 - 自訂尺寸 - contain - radio
+		let _obj_size_custom_contain = document.createElement('input');
+		_obj_size_custom_contain.type = 'radio';
+		_obj_size_custom_contain.name = 'custom_'+this.getModuleId();
+		_obj_size_custom_contain.value = 'contain';
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_contain );
+		// 圖片尺寸 - 自訂尺寸 - contain - label
+		let _obj_label_custom_contain = document.createElement('label');
+		_obj_label_custom_contain.appendChild(_obj_size_custom_contain);
+		_obj_label_custom_contain.insertAdjacentHTML('beforeend','CONTAIN');
+
+		_obj_custom_section.appendChild( _obj_label_custom );
+		_obj_custom_section.insertAdjacentHTML('beforeend','寬');
+		_obj_custom_section.appendChild( _obj_custom_width );
+		_obj_custom_section.insertAdjacentHTML('beforeend','高');
+		_obj_custom_section.appendChild( _obj_custom_height );
+		_obj_custom_section.appendChild( _obj_label_custom_cover );
+		_obj_custom_section.appendChild( _obj_label_custom_contain );
+
+		// 圖片尺寸 - 自訂尺寸 - radio
+		let _obj_size_submit = document.createElement('button');
+		_obj_size_submit.innerText = '確定';
+
+		_obj_size_section.appendChild( _obj_scale_section );
+		_obj_size_section.appendChild( _obj_custom_section );
+		_obj_size_section.appendChild( _obj_size_submit );
+		return _obj_size_section;
+	}
+
 	// 用dom去產生頁面上的排版
 	makeTempate(){
 
@@ -163,11 +250,15 @@ export default class MainImageFilter extends GlobalConst {
 			// 預覽圖片
 			let _obj_canvas_section = this.returnCanvasSection();
 
+			// 輸出圖片尺寸
+			let _obj_size_section = this.returnSizeSection();
+
 			// 新增效果
 			let _obj_method_section = this.returnMethodSection();
 
 			_obj_main.appendChild(_obj_upload_section);
 			_obj_main.appendChild(_obj_method_section);
+			_obj_main.appendChild(_obj_size_section);
 			_obj_main.appendChild(_obj_canvas_section);
 
 		}

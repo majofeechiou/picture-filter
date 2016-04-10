@@ -25,12 +25,16 @@ export default class PictureDraw extends GlobalConst {
 		let imageDataComputeProcess = new ImageDataComputeProcess({emitter:emitter});
 		let imageDataComputeMethod = new ImageDataComputeMethod({emitter:emitter});
 
+		let _obj_img_test = document.createElement('img');
+		obj_main.appendChild(_obj_img_test);
+
 		if( obj_main!==undefined ){
 
 			// 用完運算結束後，我們要用出預覽圖
 			_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
 				let _json_data = arguments[0];
 				mainImageFilter.getObjImagePreview().src = _json_data.data;
+				_obj_img_test.src = _json_data.data;
 			});
 
 			// 新增效果
