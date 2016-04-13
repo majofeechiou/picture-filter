@@ -37,6 +37,7 @@ export default class Settings {
 
 	static OUTPUT_CUSTOM_COVER = 'cover';
 	static OUTPUT_CUSTOM_CONTAIN = 'contain';
+	static OUTPUT_CUSTOM_FILL = 'fill';
 
 	static getConstNameByEn( str ){
 		if( (typeof str === 'string') && (str!=='') ){

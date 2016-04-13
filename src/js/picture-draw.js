@@ -202,7 +202,6 @@ export default class PictureDraw extends GlobalConst {
 	}
 
 	setOriginImageWidth( num ){
-		console.log( 'num :: ', num );
 		this.origin_image_width = num || 0 ;
 	}
 	setOriginImageHeight( num ){

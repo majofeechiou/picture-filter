@@ -120,6 +120,7 @@
 	Settings.OUTPUT_SIZE_CUSTOM = 'custom';
 	Settings.OUTPUT_CUSTOM_COVER = 'cover';
 	Settings.OUTPUT_CUSTOM_CONTAIN = 'contain';
+	Settings.OUTPUT_CUSTOM_FILL = 'fill';
 	exports.default = Settings;
 	;
 
@@ -895,8 +896,8 @@
 			_this.setEmitter(json_tools.emitter);
 			_this.setModuleId(_utils2.default.createUniqueId());
 
-			// this.setOutputImageSetting( this.getInitOutputImageScale() );
-			_this.setOutputImageSetting(_this.getInitOutputImageCustom());
+			_this.setOutputImageSetting(_this.getInitOutputImageScale());
+			// this.setOutputImageSetting( this.getInitOutputImageCustom() );
 
 			_this.defaultAction(obj);
 
@@ -1076,7 +1077,7 @@
 				_obj_size_scale.type = 'radio';
 				_obj_size_scale.name = 'size_' + this.getModuleId();
 				_obj_size_scale.value = 'scale';
-				_obj_size_scale.checked = this.getOutputImageSetting().size === 'scale';
+				_obj_size_scale.checked = this.getOutputImageSetting().size === _Settings2.default.OUTPUT_SIZE_SCALE;
 				this.addGlobalConst(this, 'OBJ_SIZE_SCALE_RADIO', _obj_size_scale);
 				// 圖片尺寸 - 原圖等比縮放 - label
 				var _obj_label_scale = document.createElement('label');
@@ -1098,7 +1099,7 @@
 				_obj_size_custom.type = 'radio';
 				_obj_size_custom.name = 'size_' + this.getModuleId();
 				_obj_size_custom.value = 'custom';
-				_obj_size_custom.checked = this.getOutputImageSetting().size === 'custom';
+				_obj_size_custom.checked = this.getOutputImageSetting().size === _Settings2.default.OUTPUT_SIZE_CUSTOM;
 				this.addGlobalConst(this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom);
 				// 圖片尺寸 - 自訂尺寸 - label
 				var _obj_label_custom = document.createElement('label');
@@ -1138,6 +1139,17 @@
 				var _obj_label_custom_contain = document.createElement('label');
 				_obj_label_custom_contain.appendChild(_obj_size_custom_contain);
 				_obj_label_custom_contain.insertAdjacentHTML('beforeend', 'CONTAIN');
+				// 圖片尺寸 - 自訂尺寸 - fill - radio
+				var _obj_size_custom_fill = document.createElement('input');
+				_obj_size_custom_fill.type = 'radio';
+				_obj_size_custom_fill.name = 'custom_' + this.getModuleId();
+				_obj_size_custom_fill.value = 'fill';
+				_obj_size_custom_fill.checked = this.getInitOutputImageCustom().custom === _Settings2.default.OUTPUT_CUSTOM_FILL;
+				this.addGlobalConst(this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_fill);
+				// 圖片尺寸 - 自訂尺寸 - fill - label
+				var _obj_label_custom_fill = document.createElement('label');
+				_obj_label_custom_fill.appendChild(_obj_size_custom_fill);
+				_obj_label_custom_fill.insertAdjacentHTML('beforeend', 'FILL');
 
 				_obj_custom_section.appendChild(_obj_label_custom);
 				_obj_custom_section.insertAdjacentHTML('beforeend', '寬');
@@ -1146,6 +1158,7 @@
 				_obj_custom_section.appendChild(_obj_custom_height);
 				_obj_custom_section.appendChild(_obj_label_custom_cover);
 				_obj_custom_section.appendChild(_obj_label_custom_contain);
+				_obj_custom_section.appendChild(_obj_label_custom_fill);
 
 				// 圖片尺寸 - 自訂尺寸 - radio
 				var _obj_size_submit = document.createElement('button');
@@ -1181,9 +1194,9 @@
 					// 新增效果
 					var _obj_method_section = this.returnMethodSection();
 
+					_obj_main.appendChild(_obj_size_section);
 					_obj_main.appendChild(_obj_upload_section);
 					_obj_main.appendChild(_obj_method_section);
-					_obj_main.appendChild(_obj_size_section);
 					_obj_main.appendChild(_obj_canvas_section);
 				}
 			}
@@ -1194,14 +1207,17 @@
 
 				_scope.obj_image = document.createElement('img');
 
+				_scope.obj_image.onload = function () {
+					console.log('onload');
+					// this.src =
+				};
+
 				_scope.obj_canvas = document.createElement('canvas');
 				_scope.obj_canvas_2d = _scope.obj_canvas.getContext('2d');
 
 				// 用完運算結束後，我們要用出預覽圖
 				_scope.getEmitter().on('step.image.final.step.computed', function (e) {
 					var _json_data = arguments[0];
-					console.log('_json_data ::: ', _json_data);
-
 					_scope.obj_canvas_2d.clearRect(0, 0, _scope.obj_canvas.width, _scope.obj_canvas.height);
 
 					// **************** 圖片
@@ -1209,20 +1225,27 @@
 					    _str_size = _json_setting.size;
 					_scope.obj_image.src = _json_data.data;
 
-					// if( _str_size===Settings.OUTPUT_SIZE_SCALE ){
-					// 	_scope.getObjImagePreview().style.width = Math.floor(_json_setting.origin_width * _json_setting.range / 100) + 'px';
-					// 	_scope.getObjImagePreview().style.height = Math.floor(_json_setting.origin_height * _json_setting.range / 100) + 'px';
-					// 	_scope.getObjImagePreview().src = _json_data.data;
-
-					// }else if( _str_size===Settings.OUTPUT_SIZE_CUSTOM ){
-					console.log(_json_data.origin_width, _json_data.origin_height, '--------', _json_setting.width, _json_setting.height);
-					_scope.obj_canvas.width = _json_setting.width;
-					_scope.obj_canvas.height = _json_setting.height;
-					_scope.obj_canvas_2d.drawImage(_scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height);
-					// _scope.getObjImagePreview().src = _scope.obj_image.src;
-					_scope.getObjImagePreview().src = _scope.obj_canvas.src;
-
-					// }
+					if (_str_size === _Settings2.default.OUTPUT_SIZE_SCALE) {
+						console.log('A');
+						var _num_width = Math.floor(_json_data.origin_width * _json_setting.range / 100);
+						var _num_height = Math.floor(_json_data.origin_height * _json_setting.range / 100);
+						_scope.obj_canvas.width = _num_width;
+						_scope.obj_canvas.height = _num_height;
+						_scope.obj_canvas_2d.drawImage(_scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _num_width, _num_height);
+						_scope.getObjImagePreview().src = _scope.obj_canvas.toDataURL();
+					} else if (_str_size === _Settings2.default.OUTPUT_SIZE_CUSTOM) {
+						console.log('B');
+						_scope.obj_canvas.width = _json_setting.width;
+						_scope.obj_canvas.height = _json_setting.height;
+						if (_json_setting.custom === _Settings2.default.OUTPUT_CUSTOM_COVER) {
+							_scope.obj_canvas_2d.drawImage(_scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height);
+						} else if (_json_setting.custom === _Settings2.default.OUTPUT_CUSTOM_CONTAIN) {
+							_scope.obj_canvas_2d.drawImage(_scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height);
+						} else if (_json_setting.custom === _Settings2.default.OUTPUT_CUSTOM_FILL) {
+							_scope.obj_canvas_2d.drawImage(_scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height);
+						}
+						_scope.getObjImagePreview().src = _scope.obj_canvas.toDataURL();
+					}
 				});
 			}
 		}, {
@@ -1528,7 +1551,6 @@
 		_createClass(PictureDraw, [{
 			key: 'setOriginImageWidth',
 			value: function setOriginImageWidth(num) {
-				console.log('num :: ', num);
 				this.origin_image_width = num || 0;
 			}
 		}, {
