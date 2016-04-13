@@ -25,14 +25,15 @@ export default class PictureDraw extends GlobalConst {
 
 		if( obj_main!==undefined ){
 
-			// 用完運算結束後，我們要用出預覽圖
-			_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
-				let _json_data = arguments[0];
-				mainImageFilter.getObjImagePreview().src = _json_data.data;
+			// // 用完運算結束後，我們要用出預覽圖
+			// _scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
+			// 	let _json_data = arguments[0];
+			// 	mainImageFilter.getObjImagePreview().src = _json_data.data;
 
-				mainImageFilter.getObjImagePreview().width = _scope.getOriginImageWidth() / 2;
-				mainImageFilter.getObjImagePreview().height = _scope.getOriginImageHeight() / 2;
-			});
+			// 	// **************** 圖片
+			// 	mainImageFilter.getObjImagePreview().width = _scope.getOriginImageWidth() / 2;
+			// 	mainImageFilter.getObjImagePreview().height = _scope.getOriginImageHeight() / 2;
+			// });
 
 			// 新增效果
 			_scope.getGlobalConst(_scope).emitter.on('step.method.show.adding', function(e){
@@ -188,6 +189,8 @@ export default class PictureDraw extends GlobalConst {
 					imageDataComputeMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
 				}else{
 					// 圖片處理好了，我們現在要準備預覽
+					_json_data.origin_width = _scope.getOriginImageWidth();
+					_json_data.origin_height = _scope.getOriginImageHeight();
 					_scope.getGlobalConst(_scope).emitter.emit('step.image.final.step.computed', _json_data);
 					console.log('******************* 預覽圖片!! *******************');
 				}

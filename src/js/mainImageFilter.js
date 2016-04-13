@@ -12,6 +12,9 @@ export default class MainImageFilter extends GlobalConst {
 		this.setEmitter( json_tools.emitter );
 		this.setModuleId( Utils.createUniqueId() );
 
+		// this.setOutputImageSetting( this.getInitOutputImageScale() );
+		this.setOutputImageSetting( this.getInitOutputImageCustom() );
+
 		this.defaultAction( obj );
 
 	}
@@ -30,6 +33,21 @@ export default class MainImageFilter extends GlobalConst {
 
 	setEmitter(object){
 		this.emitter = object ;
+	}
+	
+	setOutputImageSetting( json ){
+		this.output_image_setting = json || {} ;
+	}
+
+	getInitOutputImageScale(){
+		return Settings.getInitOutputImageScale();
+	}
+	getInitOutputImageCustom(){
+		return Settings.getInitOutputImageCustom();
+	}
+
+	getOutputImageSetting(){
+		return this.output_image_setting || {} ;
 	}
 
 	getEmitter(){
@@ -134,7 +152,7 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_size_scale.type = 'radio';
 		_obj_size_scale.name = 'size_'+this.getModuleId();
 		_obj_size_scale.value = 'scale';
-		_obj_size_scale.checked = true;
+		_obj_size_scale.checked = (this.getOutputImageSetting().size === 'scale');
 		this.addGlobalConst( this, 'OBJ_SIZE_SCALE_RADIO', _obj_size_scale );
 		// 圖片尺寸 - 原圖等比縮放 - label
 		let _obj_label_scale = document.createElement('label');
@@ -144,7 +162,7 @@ export default class MainImageFilter extends GlobalConst {
 		let _obj_scale_range = document.createElement('input');
 		_obj_scale_range.type = 'range';
 		_obj_scale_range.name = 'range_'+this.getModuleId();
-		_obj_scale_range.value = 100;
+		_obj_scale_range.value = this.getInitOutputImageScale().range;
 		_obj_scale_range.min = 1;
 		_obj_scale_range.max = 200;
 
@@ -156,6 +174,7 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_size_custom.type = 'radio';
 		_obj_size_custom.name = 'size_'+this.getModuleId();
 		_obj_size_custom.value = 'custom';
+		_obj_size_custom.checked = (this.getOutputImageSetting().size === 'custom');
 		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom );
 		// 圖片尺寸 - 自訂尺寸 - label
 		let _obj_label_custom = document.createElement('label');
@@ -166,19 +185,19 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_custom_width.name = 'custom_width_'+this.getModuleId();
 		_obj_custom_width.min = 10;
 		_obj_custom_width.max = 3000;
-		_obj_custom_width.value = 200;
+		_obj_custom_width.value = this.getInitOutputImageCustom().width;
 		let _obj_custom_height = document.createElement('input');
 		_obj_custom_height.type = 'number';
 		_obj_custom_height.name = 'custom_height_'+this.getModuleId();
 		_obj_custom_height.min = 10;
 		_obj_custom_height.max = 3000;
-		_obj_custom_height.value = 200;
+		_obj_custom_height.value = this.getInitOutputImageCustom().height;
 		// 圖片尺寸 - 自訂尺寸 - cover - radio
 		let _obj_size_custom_cover = document.createElement('input');
 		_obj_size_custom_cover.type = 'radio';
 		_obj_size_custom_cover.name = 'custom_'+this.getModuleId();
 		_obj_size_custom_cover.value = 'cover';
-		_obj_size_custom_cover.checked = true;
+		_obj_size_custom_cover.checked = (this.getInitOutputImageCustom().custom === Settings.OUTPUT_CUSTOM_COVER);
 		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_cover );
 		// 圖片尺寸 - 自訂尺寸 - cover - label
 		let _obj_label_custom_cover = document.createElement('label');
@@ -189,6 +208,7 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_size_custom_contain.type = 'radio';
 		_obj_size_custom_contain.name = 'custom_'+this.getModuleId();
 		_obj_size_custom_contain.value = 'contain';
+		_obj_size_custom_contain.checked = (this.getInitOutputImageCustom().custom === Settings.OUTPUT_CUSTOM_CONTAIN);
 		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_contain );
 		// 圖片尺寸 - 自訂尺寸 - contain - label
 		let _obj_label_custom_contain = document.createElement('label');
@@ -243,6 +263,44 @@ export default class MainImageFilter extends GlobalConst {
 
 	}
 
+	operateOutputImage(){
+		let _scope = this ;
+
+		_scope.obj_image = document.createElement('img');
+
+		_scope.obj_canvas = document.createElement('canvas');
+		_scope.obj_canvas_2d = _scope.obj_canvas.getContext('2d');
+
+		// 用完運算結束後，我們要用出預覽圖
+		_scope.getEmitter().on('step.image.final.step.computed', function(e){
+			let _json_data = arguments[0];
+			console.log( '_json_data ::: ', _json_data );
+
+			_scope.obj_canvas_2d.clearRect( 0, 0, _scope.obj_canvas.width, _scope.obj_canvas.height );
+
+			// **************** 圖片
+			let _json_setting = _scope.getOutputImageSetting(),
+				_str_size = _json_setting.size;
+			_scope.obj_image.src = _json_data.data;
+
+			// if( _str_size===Settings.OUTPUT_SIZE_SCALE ){
+			// 	_scope.getObjImagePreview().style.width = Math.floor(_json_setting.origin_width * _json_setting.range / 100) + 'px';
+			// 	_scope.getObjImagePreview().style.height = Math.floor(_json_setting.origin_height * _json_setting.range / 100) + 'px';
+			// 	_scope.getObjImagePreview().src = _json_data.data;
+
+			// }else if( _str_size===Settings.OUTPUT_SIZE_CUSTOM ){
+				console.log( _json_data.origin_width, _json_data.origin_height, '--------', _json_setting.width, _json_setting.height );
+				_scope.obj_canvas.width = _json_setting.width ;
+				_scope.obj_canvas.height = _json_setting.height ;
+				_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height );
+				// _scope.getObjImagePreview().src = _scope.obj_image.src;
+				_scope.getObjImagePreview().src = _scope.obj_canvas.src;
+
+			// }
+
+		});
+	}
+
 	defaultAction( obj ){
 		let _scope = this;
 		_scope.initGlobalConst(this);
@@ -251,6 +309,8 @@ export default class MainImageFilter extends GlobalConst {
 			_scope.addGlobalConst( this, 'MAIN_SECTION', obj );
 			_scope.makeTempate();
 		}
+
+		_scope.operateOutputImage();
 
 	}
 

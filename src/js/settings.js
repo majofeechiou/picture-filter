@@ -32,10 +32,31 @@ export default class Settings {
 	static METHOD_SEPIA = 'SEPIA';
 	static METHOD_SEPIA_NAME = '復古';
 
+	static OUTPUT_SIZE_SCALE = 'scale';
+	static OUTPUT_SIZE_CUSTOM = 'custom';
+
+	static OUTPUT_CUSTOM_COVER = 'cover';
+	static OUTPUT_CUSTOM_CONTAIN = 'contain';
+
 	static getConstNameByEn( str ){
 		if( (typeof str === 'string') && (str!=='') ){
 			return Settings['METHOD_'+str+'_NAME'];
 		}
+	}
+
+	static getInitOutputImageScale(){
+		return {
+			size: this.OUTPUT_SIZE_SCALE,
+			range: 100
+		};
+	}
+	static getInitOutputImageCustom(){
+		return {
+			size: this.OUTPUT_SIZE_CUSTOM,
+			width: 200,
+			height: 200,
+			custom: this.OUTPUT_CUSTOM_COVER
+		};
 	}
 
 };
