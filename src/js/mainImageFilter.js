@@ -83,6 +83,36 @@ export default class MainImageFilter extends GlobalConst {
 		return this.getGlobalConst(this).OBJ_UPLOAD;
 	}
 
+	// 確定圖片的size設定
+	getObjsSizeSubmit(){
+		return this.getGlobalConst(this).OBJ_SIZE_SUBMIT;
+	}
+
+	// 哪種圖片的大小設定 - scale
+	getObjsSizeScaleRadio(){
+		return this.getGlobalConst(this).OBJ_SIZE_SCALE_RADIO;
+	}
+
+	// 哪種圖片的大小設定 - custom
+	getObjsSizeCustomRadio(){
+		return this.getGlobalConst(this).OBJ_SIZE_CUSTOM_RADIO;
+	}
+
+	// 哪種圖片的大小設定 - custom
+	getObjsSizeRange(){
+		return this.getGlobalConst(this).OBJ_SCALE_RANGE;
+	}
+
+	// 自訂寬度
+	getObjsSizeCustomWidth(){
+		return this.getGlobalConst(this).OBJ_SIZE_CUSTOM_WIDTH;
+	}
+
+	// 自訂高度
+	getObjsSizeCustomHeight(){
+		return this.getGlobalConst(this).OBJ_SIZE_CUSTOM_HEIGHT;
+	}
+
 	// 上傳檔案
 	returnUploadSection(){
 		let _obj_upload_section 	= document.createElement('div');
@@ -96,7 +126,7 @@ export default class MainImageFilter extends GlobalConst {
 	
 	// 預覽圖片
 	returnCanvasSection(){
-		let _obj_canvas_section 	= document.createElement('div');
+		let _obj_canvas_section = document.createElement('div');
 		let _obj_canvas_preview = new Image();
 		
 		this.addGlobalConst( this, 'OBJ_IMAGE_PREVIEW', _obj_canvas_preview );
@@ -165,6 +195,7 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_scale_range.value = this.getInitOutputImageScale().range;
 		_obj_scale_range.min = 1;
 		_obj_scale_range.max = 200;
+		this.addGlobalConst( this, 'OBJ_SCALE_RANGE', _obj_scale_range );
 
 		_obj_scale_section.appendChild( _obj_label_scale );
 		_obj_scale_section.appendChild( _obj_scale_range );
@@ -186,19 +217,21 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_custom_width.min = 10;
 		_obj_custom_width.max = 3000;
 		_obj_custom_width.value = this.getInitOutputImageCustom().width;
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_WIDTH', _obj_custom_width );
 		let _obj_custom_height = document.createElement('input');
 		_obj_custom_height.type = 'number';
 		_obj_custom_height.name = 'custom_height_'+this.getModuleId();
 		_obj_custom_height.min = 10;
 		_obj_custom_height.max = 3000;
 		_obj_custom_height.value = this.getInitOutputImageCustom().height;
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_HEIGHT', _obj_custom_height );
 		// 圖片尺寸 - 自訂尺寸 - cover - radio
 		let _obj_size_custom_cover = document.createElement('input');
 		_obj_size_custom_cover.type = 'radio';
 		_obj_size_custom_cover.name = 'custom_'+this.getModuleId();
 		_obj_size_custom_cover.value = 'cover';
 		_obj_size_custom_cover.checked = (this.getInitOutputImageCustom().custom === Settings.OUTPUT_CUSTOM_COVER);
-		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_cover );
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_COVER', _obj_size_custom_cover );
 		// 圖片尺寸 - 自訂尺寸 - cover - label
 		let _obj_label_custom_cover = document.createElement('label');
 		_obj_label_custom_cover.appendChild(_obj_size_custom_cover);
@@ -209,7 +242,7 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_size_custom_contain.name = 'custom_'+this.getModuleId();
 		_obj_size_custom_contain.value = 'contain';
 		_obj_size_custom_contain.checked = (this.getInitOutputImageCustom().custom === Settings.OUTPUT_CUSTOM_CONTAIN);
-		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_contain );
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_CONTAIN', _obj_size_custom_contain );
 		// 圖片尺寸 - 自訂尺寸 - contain - label
 		let _obj_label_custom_contain = document.createElement('label');
 		_obj_label_custom_contain.appendChild(_obj_size_custom_contain);
@@ -220,7 +253,7 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_size_custom_fill.name = 'custom_'+this.getModuleId();
 		_obj_size_custom_fill.value = 'fill';
 		_obj_size_custom_fill.checked = (this.getInitOutputImageCustom().custom === Settings.OUTPUT_CUSTOM_FILL);
-		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_RADIO', _obj_size_custom_fill );
+		this.addGlobalConst( this, 'OBJ_SIZE_CUSTOM_FILL', _obj_size_custom_fill );
 		// 圖片尺寸 - 自訂尺寸 - fill - label
 		let _obj_label_custom_fill = document.createElement('label');
 		_obj_label_custom_fill.appendChild(_obj_size_custom_fill);
@@ -238,11 +271,13 @@ export default class MainImageFilter extends GlobalConst {
 		// 圖片尺寸 - 自訂尺寸 - radio
 		let _obj_size_submit = document.createElement('button');
 		_obj_size_submit.innerText = '確定';
+		this.addGlobalConst( this, 'OBJ_SIZE_SUBMIT', _obj_size_submit );
 
 		_obj_size_section.appendChild( _obj_scale_section );
 		_obj_size_section.appendChild( _obj_custom_section );
 		_obj_size_section.appendChild( _obj_size_submit );
 		return _obj_size_section;
+
 	}
 
 	// 用dom去產生頁面上的排版
@@ -271,8 +306,33 @@ export default class MainImageFilter extends GlobalConst {
 			_obj_main.appendChild(_obj_method_section);
 			_obj_main.appendChild(_obj_canvas_section);
 
+			_scope.judgeOutputImageSetting.call( _scope.getObjsSizeSubmit(), _scope );
+
 		}
 
+	}
+
+	judgeOutputImageSetting( scope_calss ){
+		let _obj_self = this;
+		_obj_self.onclick = function( e ){
+			let _obj_scale_radio = scope_calss.getObjsSizeScaleRadio(),
+				_obj_custom_radio = scope_calss.getObjsSizeCustomRadio();
+			let _str_size 	= ( _obj_scale_radio.checked === true )? _obj_scale_radio.value : (
+							  ( _obj_custom_radio.checked === true )? _obj_custom_radio.value : '' ) ;
+			let _json_setting = {
+				size: _str_size
+			};
+
+			if( _str_size === Settings.OUTPUT_SIZE_SCALE ){
+				_json_setting.range = scope_calss.getObjsSizeRange().value;
+			}else if( _str_size === Settings.OUTPUT_SIZE_CUSTOM ){
+				_json_setting.width = scope_calss.getObjsSizeCustomWidth().value;
+				_json_setting.height = scope_calss.getObjsSizeCustomHeight().value;
+				_json_setting.custom = document.querySelectorAll('[name="custom_'+scope_calss.getModuleId()+'"]:checked')[0].value || '' ;
+			}
+			scope_calss.setOutputImageSetting( _json_setting );
+			
+		};
 	}
 
 	operateOutputImage(){
