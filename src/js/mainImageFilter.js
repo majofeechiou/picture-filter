@@ -372,7 +372,6 @@ export default class MainImageFilter extends GlobalConst {
 			_scope.obj_image.src = _json_data.data;
 
 			if( _str_size===Settings.OUTPUT_SIZE_SCALE ){
-				console.log('A');
 				let _num_width = Math.floor(_json_data.origin_width * _json_setting.range / 100);
 				let _num_height = Math.floor(_json_data.origin_height * _json_setting.range / 100);
 				_scope.obj_canvas.width = _num_width ;
@@ -381,7 +380,6 @@ export default class MainImageFilter extends GlobalConst {
 				_scope.getObjImagePreview().src = _scope.obj_canvas.toDataURL();
 
 			}else if( _str_size===Settings.OUTPUT_SIZE_CUSTOM ){
-				console.log('B');
 				_scope.obj_canvas.width = _json_setting.width ;
 				_scope.obj_canvas.height = _json_setting.height ;
 
@@ -391,27 +389,26 @@ export default class MainImageFilter extends GlobalConst {
 				let _num_outreal_height = _json_setting.width/_json_data.origin_width*_json_data.origin_height ;
 				let _num_outreal_width = _json_setting.height/_json_data.origin_height*_json_data.origin_width ;
 
-
 				if( _json_setting.custom===Settings.OUTPUT_CUSTOM_COVER ){ // 填滿區域，可能造成圖片放大的失真
 					if( _num_origin_ratio>_num_output_ratio ){
-						_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, _json_setting.height/2-(_num_outreal_height/2), _json_setting.width, _num_outreal_height );
+						_scope.baseOnWidth( _json_data, _json_setting );
 					}else if( _num_origin_ratio<_num_output_ratio ){
-						_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, _json_setting.width/2-(_num_outreal_width/2), 0, _num_outreal_width, _json_setting.height );
+						_scope.baseOnHeight( _json_data, _json_setting );
 					}else{
-						_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height );
+						_scope.baseOnWidthHeight( _json_data, _json_setting );
 					}
 				}else if( _json_setting.custom===Settings.OUTPUT_CUSTOM_CONTAIN ){ // 內容全放入，可能造成空白
 					if( _num_origin_ratio>_num_output_ratio ){
-						_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, _json_setting.width/2-(_num_outreal_width/2), 0, _num_outreal_width, _json_setting.height );
+						_scope.baseOnHeight( _json_data, _json_setting );
 					}else if( _num_origin_ratio<_num_output_ratio ){
-						_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, _json_setting.height/2-(_num_outreal_height/2), _json_setting.width, _num_outreal_height );
+						_scope.baseOnWidth( _json_data, _json_setting );
 					}else{
-						_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height );
+						_scope.baseOnWidthHeight( _json_data, _json_setting );
 					}
 				}else if( _json_setting.custom===Settings.OUTPUT_CUSTOM_FILL ){ // 填滿（不考慮寬高比）
-					_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, _json_data.origin_width, _json_data.origin_height, 0, 0, _json_setting.width, _json_setting.height );
+					_scope.baseOnWidthHeight( _json_data, _json_setting );
 				}else if( _json_setting.custom===Settings.OUTPUT_CUSTOM_CLIP ){ // 裁切
-					_scope.obj_canvas_2d.drawImage( _scope.obj_image, _json_data.origin_width/2-_json_setting.width/2, _json_data.origin_height/2-_json_setting.height/2, _json_setting.width, _json_setting.height, 0, 0, _json_setting.width, _json_setting.height );
+					_scope.baseOnClip( _json_data, _json_setting );
 				}
 				_scope.getObjImagePreview().src = _scope.obj_canvas.toDataURL() ;
 
@@ -420,21 +417,30 @@ export default class MainImageFilter extends GlobalConst {
 		});
 	}
 
+	// 固定輸出的寬度
 	baseOnWidth( json_data, json_setting ){
 		let _scope = this;
 		let _num_outreal_height = json_setting.width/json_data.origin_width*json_data.origin_height ;
 		_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, json_data.origin_width, json_data.origin_height, 0, json_setting.height/2-(_num_outreal_height/2), json_setting.width, _num_outreal_height );
 	}
 
+	// 固定輸出的高度
 	baseOnHeight( json_data, json_setting ){
 		let _scope = this;
 		let _num_outreal_width = json_setting.height/json_data.origin_height*json_data.origin_width ;
 		_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, json_data.origin_width, json_data.origin_height, json_setting.width/2-(_num_outreal_width/2), 0, _num_outreal_width, json_setting.height );
 	}
 
+	// 填滿（不考慮寬高比）
 	baseOnWidthHeight( json_data, json_setting ){
 		let _scope = this;
 		_scope.obj_canvas_2d.drawImage( _scope.obj_image, 0, 0, json_data.origin_width, json_data.origin_height, 0, 0, json_setting.width, json_setting.height );
+	}
+
+	// 裁切
+	baseOnClip( json_data, json_setting ){
+		let _scope = this;
+		_scope.obj_canvas_2d.drawImage( _scope.obj_image, json_data.origin_width/2-json_setting.width/2, json_data.origin_height/2-json_setting.height/2, json_setting.width, json_setting.height, 0, 0, json_setting.width, json_setting.height );
 	}
 
 	defaultAction( obj ){
