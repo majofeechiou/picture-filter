@@ -38,6 +38,7 @@ export default class Settings {
 	static OUTPUT_CUSTOM_COVER = 'cover';
 	static OUTPUT_CUSTOM_CONTAIN = 'contain';
 	static OUTPUT_CUSTOM_FILL = 'fill';
+	static OUTPUT_CUSTOM_CLIP = 'clip';
 
 	static getConstNameByEn( str ){
 		if( (typeof str === 'string') && (str!=='') ){
@@ -57,6 +58,9 @@ export default class Settings {
 			width: 200,
 			height: 200,
 			custom: this.OUTPUT_CUSTOM_COVER
+			// custom: this.OUTPUT_CUSTOM_CONTAIN
+			// custom: this.OUTPUT_CUSTOM_FILL
+			// custom: this.OUTPUT_CUSTOM_CLIP
 		};
 	}
 
