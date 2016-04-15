@@ -55,10 +55,10 @@ export default class Settings {
 	static getInitOutputImageCustom(){
 		return {
 			size: this.OUTPUT_SIZE_CUSTOM,
-			width: 200,
-			height: 200,
-			custom: this.OUTPUT_CUSTOM_COVER
-			// custom: this.OUTPUT_CUSTOM_CONTAIN
+			width: 500,
+			height: 300,
+			// custom: this.OUTPUT_CUSTOM_COVER
+			custom: this.OUTPUT_CUSTOM_CONTAIN
 			// custom: this.OUTPUT_CUSTOM_FILL
 			// custom: this.OUTPUT_CUSTOM_CLIP
 		};

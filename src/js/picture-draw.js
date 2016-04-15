@@ -5,6 +5,7 @@ import Utils from './utils';
 import MainImageFilter from './mainImageFilter';
 import ImageDataComputeMethod from './imageDataComputeMethod';
 import ImageDataComputeProcess from './imageDataComputeProcess';
+import ImageDataOriginal from './imageDataOriginal';
 import StepMethod from './stepMethod';
 import GlobalConst from './globalConst';
 import Emitter from '../../node_modules/component-emitter/index.js';
@@ -22,6 +23,7 @@ export default class PictureDraw extends GlobalConst {
 		let stepMethod = new StepMethod({emitter:emitter});
 		let imageDataComputeProcess = new ImageDataComputeProcess({emitter:emitter});
 		let imageDataComputeMethod = new ImageDataComputeMethod({emitter:emitter});
+		let imageDataOriginal = new ImageDataOriginal({emitter:emitter});
 
 		if( obj_main!==undefined ){
 
@@ -119,6 +121,11 @@ export default class PictureDraw extends GlobalConst {
 			_scope.getGlobalConst(_scope).emitter.on('init.data.changed', function(e){
 				let _json_data = arguments[0];
 				imageDataComputeProcess.setStepImage( [], ImageDataComputeProcess.TIMMING_RESET, _json_data );
+			});
+
+			_scope.getGlobalConst(_scope).emitter.on('origin.data.changed', function(e){
+				let _json_data = arguments[0];
+				imageDataOriginal.setOriginImage( _json_data );
 			});
 
 			_scope.getGlobalConst(_scope).emitter.on('origin.image.info.loaded', function(e){

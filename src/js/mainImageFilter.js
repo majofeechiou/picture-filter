@@ -25,8 +25,7 @@ export default class MainImageFilter extends GlobalConst {
 
 	// 抓原始圖片資料
 	setImageInitData( str_bas64 ){
-		this.image_init_data = str_bas64 ;
-		this.getEmitter().emit('init.data.changed', {
+		this.getEmitter().emit('origin.data.changed', {
 			origin_data: str_bas64
 		});
 	}
