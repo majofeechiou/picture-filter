@@ -130,7 +130,8 @@ export default class PictureDraw extends GlobalConst {
 			_scope.getGlobalConst(_scope).emitter.on('origin.data.changed', function(e){
 				console.log( '----- origin.data.changed -----' );
 				let _json_data = arguments[0];
-				imageDataOriginal.obj_image.src = _json_data.origin_data;
+				imageDataOriginal.getObjImage().src = _json_data.origin_data;
+				mainImageFilter.getObjOriginImage().src = _json_data.origin_data;
 			});
 
 			_scope.getGlobalConst(_scope).emitter.on('step.image.success.loaded', function(e){

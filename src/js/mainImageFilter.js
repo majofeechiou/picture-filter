@@ -12,8 +12,8 @@ export default class MainImageFilter extends GlobalConst {
 		this.setEmitter( json_tools.emitter );
 		this.setModuleId( Utils.createUniqueId() );
 
-		// this.setOutputImageSetting( this.getInitOutputImageScale() );
-		this.setOutputImageSetting( this.getInitOutputImageCustom() );
+		this.setOutputImageSetting( this.getInitOutputImageScale() );
+		// this.setOutputImageSetting( this.getInitOutputImageCustom() );
 
 		this.defaultAction( obj );
 
@@ -70,6 +70,11 @@ export default class MainImageFilter extends GlobalConst {
 		return this.getGlobalConst(this).OBJ_METHOD_RESULT;
 	}
 
+	// 原圖預覽圖片
+	getObjOriginImage(){
+		return this.getGlobalConst(this).OBJ_ORIGIN_IMAGE;
+	}
+
 	// 得到上傳圖片的按鈕
 	getObjUpload(){
 		return this.getGlobalConst(this).OBJ_UPLOAD;
@@ -95,6 +100,11 @@ export default class MainImageFilter extends GlobalConst {
 		return this.getGlobalConst(this).OBJ_SCALE_RANGE;
 	}
 
+	// 哪種圖片的大小設定 - custom - 多少%的顯非
+	getObjsSizeRangesShow(){
+		return this.getGlobalConst(this).OBJ_SCALE_RANGE_SHOW;
+	}
+
 	// 自訂寬度
 	getObjsSizeCustomWidth(){
 		return this.getGlobalConst(this).OBJ_SIZE_CUSTOM_WIDTH;
@@ -103,6 +113,15 @@ export default class MainImageFilter extends GlobalConst {
 	// 自訂高度
 	getObjsSizeCustomHeight(){
 		return this.getGlobalConst(this).OBJ_SIZE_CUSTOM_HEIGHT;
+	}
+
+	// 原圖預覽圖片
+	returnOriginImageSection(){
+		let _obj_image_section = document.createElement('div');
+		let _obj_origin_image 	= document.createElement('img');
+		this.addGlobalConst( this, 'OBJ_ORIGIN_IMAGE', _obj_origin_image );
+		_obj_image_section.appendChild(_obj_origin_image);
+		return _obj_image_section;
 	}
 
 	// 上傳檔案
@@ -120,7 +139,6 @@ export default class MainImageFilter extends GlobalConst {
 	returnCanvasSection(){
 		let _obj_canvas_section = document.createElement('div');
 		let _obj_canvas_preview = new Image();
-		_obj_canvas_preview.style.border = '1px solid #f00';
 		
 		this.addGlobalConst( this, 'OBJ_IMAGE_PREVIEW', _obj_canvas_preview );
 
@@ -189,9 +207,12 @@ export default class MainImageFilter extends GlobalConst {
 		_obj_scale_range.min = 1;
 		_obj_scale_range.max = 200;
 		this.addGlobalConst( this, 'OBJ_SCALE_RANGE', _obj_scale_range );
+		let _obj_scale_range_show = document.createElement('span');
+		this.addGlobalConst( this, 'OBJ_SCALE_RANGE_SHOW', _obj_scale_range_show );
 
 		_obj_scale_section.appendChild( _obj_label_scale );
 		_obj_scale_section.appendChild( _obj_scale_range );
+		_obj_scale_section.appendChild( _obj_scale_range_show );
 
 		// 圖片尺寸 - 自訂尺寸 - radio
 		let _obj_size_custom = document.createElement('input');
@@ -306,12 +327,18 @@ export default class MainImageFilter extends GlobalConst {
 			// 新增效果
 			let _obj_method_section = this.returnMethodSection();
 
+			// 原圖預覽圖片
+			let _obj_origin_image_section = this.returnOriginImageSection();
+
 			_obj_main.appendChild(_obj_size_section);
 			_obj_main.appendChild(_obj_upload_section);
 			_obj_main.appendChild(_obj_method_section);
+			_obj_main.appendChild(_obj_origin_image_section);
 			_obj_main.appendChild(_obj_canvas_section);
 
 			_scope.judgeOutputImageSetting.call( _scope.getObjsSizeSubmit(), _scope );
+			_scope.listenRangeChange.call( _scope.getObjsSizeRange(), _scope );
+			_scope.getRangeShowText();
 
 		}
 
@@ -338,17 +365,6 @@ export default class MainImageFilter extends GlobalConst {
 			scope_calss.setOutputImageSetting( _json_setting );
 			
 		};
-	}
-
-	defaultAction( obj ){
-		let _scope = this;
-		_scope.initGlobalConst(this);
-
-		if( obj.nodeType>=1 ){
-			_scope.addGlobalConst( this, 'MAIN_SECTION', obj );
-			_scope.makeTempate();
-		}
-
 	}
 
 	uploadAction( scope_calss ){
@@ -392,6 +408,29 @@ export default class MainImageFilter extends GlobalConst {
 				method_btn:this
 			});
 		}
+	}
+
+	listenRangeChange( scope_calss ){
+		let _obj_self = this;
+		_obj_self.onchange = function( e ){
+			scope_calss.getRangeShowText();
+		}
+	}
+
+	getRangeShowText(){
+		let _scope = this;
+		_scope.getObjsSizeRangesShow().innerText = _scope.getObjsSizeRange().value+'%';
+	}
+
+	defaultAction( obj ){
+		let _scope = this;
+		_scope.initGlobalConst(this);
+
+		if( obj.nodeType>=1 ){
+			_scope.addGlobalConst( this, 'MAIN_SECTION', obj );
+			_scope.makeTempate();
+		}
+
 	}
 
 };

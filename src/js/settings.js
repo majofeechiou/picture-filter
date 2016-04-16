@@ -57,8 +57,8 @@ export default class Settings {
 			size: this.OUTPUT_SIZE_CUSTOM,
 			width: 500,
 			height: 300,
-			// custom: this.OUTPUT_CUSTOM_COVER
-			custom: this.OUTPUT_CUSTOM_CONTAIN
+			custom: this.OUTPUT_CUSTOM_COVER
+			// custom: this.OUTPUT_CUSTOM_CONTAIN
 			// custom: this.OUTPUT_CUSTOM_FILL
 			// custom: this.OUTPUT_CUSTOM_CLIP
 		};
