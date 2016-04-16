@@ -37,6 +37,14 @@ export default class PictureDraw extends GlobalConst {
 			// 	mainImageFilter.getObjImagePreview().height = _scope.getOriginImageHeight() / 2;
 			// });
 
+			// 用完運算結束後，我們要用出預覽圖
+			_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
+				let _json_data = arguments[0];
+				console.log( 'step.image.final.step.computed', _json_data);
+				// mainImageFilter.getObjImagePreview().src = imageDataOriginal.obj_canvas.toDataURL() ;
+				mainImageFilter.getObjImagePreview().src = _json_data.data ;
+			});
+
 			// 新增效果
 			_scope.getGlobalConst(_scope).emitter.on('step.method.show.adding', function(e){
 				// 新增顯示method的文字
@@ -125,7 +133,11 @@ export default class PictureDraw extends GlobalConst {
 
 			_scope.getGlobalConst(_scope).emitter.on('origin.data.changed', function(e){
 				let _json_data = arguments[0];
-				imageDataOriginal.setOriginImage( _json_data );
+
+				imageDataOriginal.operateImageSize( _json_data );
+					// mainImageFilter.operateImageSize( _json_data );
+					// imageDataComputeProcess.operateOutputImage();
+					// imageDataComputeProcess.setOriginImage( _json_data );
 			});
 
 			_scope.getGlobalConst(_scope).emitter.on('origin.image.info.loaded', function(e){
