@@ -28,11 +28,6 @@ export default class ImageDataComputeMethod extends Tools {
 				_scope.setComputeWidth( _num_width ); // 在此先用圖片本身的長寬去做的
 				_scope.setComputeHeight( _num_height ); // 在此先用圖片本身的長寬去做的
 
-				_scope.getEmitter().emit('origin.image.info.loaded', {
-					width: _num_width,
-					height: _num_height
-				});
-
 				_scope.getEmitter().emit('step.image.success.loaded', {
 					origin_data: this.src,
 					method: _scope.getPainterMethod()
@@ -83,13 +78,6 @@ export default class ImageDataComputeMethod extends Tools {
 	// 傳來什麼，就如實地回傳
 	methodOrigin( json ){
 		let _scope = this;
-			// let _data_url = _scope.obj_canvas.toDataURL();
-
-			// _scope.getEmitter().emit('step.image.success.computed', {
-			// 	origin_data: json.origin_data,
-			// 	data: _data_url
-			// });
-
 		_scope.emitAfterMethod( json );
 
 	}

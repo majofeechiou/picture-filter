@@ -61,42 +61,6 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var Tools = (function () {
-		function Tools() {
-			_classCallCheck(this, Tools);
-		}
-
-		_createClass(Tools, [{
-			key: 'getEmitter',
-			value: function getEmitter() {
-				return this.emitter;
-			}
-		}, {
-			key: 'setEmitter',
-			value: function setEmitter(object) {
-				this.emitter = object;
-			}
-		}]);
-
-		return Tools;
-	})();
-
-	exports.default = Tools;
-
-/***/ },
-/* 2 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 	var Settings = (function () {
 		function Settings() {
 			_classCallCheck(this, Settings);
@@ -163,6 +127,42 @@
 	Settings.OUTPUT_CUSTOM_CLIP = 'clip';
 	exports.default = Settings;
 	;
+
+/***/ },
+/* 2 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Tools = (function () {
+		function Tools() {
+			_classCallCheck(this, Tools);
+		}
+
+		_createClass(Tools, [{
+			key: 'getEmitter',
+			value: function getEmitter() {
+				return this.emitter;
+			}
+		}, {
+			key: 'setEmitter',
+			value: function setEmitter(object) {
+				this.emitter = object;
+			}
+		}]);
+
+		return Tools;
+	})();
+
+	exports.default = Tools;
 
 /***/ },
 /* 3 */
@@ -441,7 +441,7 @@
 		value: true
 	});
 
-	var _tools = __webpack_require__(1);
+	var _tools = __webpack_require__(2);
 
 	var _tools2 = _interopRequireDefault(_tools);
 
@@ -484,11 +484,6 @@
 
 					_scope.setComputeWidth(_num_width); // 在此先用圖片本身的長寬去做的
 					_scope.setComputeHeight(_num_height); // 在此先用圖片本身的長寬去做的
-
-					_scope.getEmitter().emit('origin.image.info.loaded', {
-						width: _num_width,
-						height: _num_height
-					});
 
 					_scope.getEmitter().emit('step.image.success.loaded', {
 						origin_data: this.src,
@@ -557,13 +552,6 @@
 			key: 'methodOrigin',
 			value: function methodOrigin(json) {
 				var _scope = this;
-				// let _data_url = _scope.obj_canvas.toDataURL();
-
-				// _scope.getEmitter().emit('step.image.success.computed', {
-				// 	origin_data: json.origin_data,
-				// 	data: _data_url
-				// });
-
 				_scope.emitAfterMethod(json);
 			}
 
@@ -776,7 +764,7 @@
 		value: true
 	});
 
-	var _tools = __webpack_require__(1);
+	var _tools = __webpack_require__(2);
 
 	var _tools2 = _interopRequireDefault(_tools);
 
@@ -842,9 +830,6 @@
 				}
 
 				_scope.step_image.push(json_data);
-
-				console.log('_scope.step_image :: ', _scope.step_image);
-
 				_scope.getEmitter().emit('step.image.pushed');
 			}
 		}]);
@@ -869,11 +854,11 @@
 	    value: true
 	});
 
-	var _tools = __webpack_require__(1);
+	var _tools = __webpack_require__(2);
 
 	var _tools2 = _interopRequireDefault(_tools);
 
-	var _Settings = __webpack_require__(2);
+	var _Settings = __webpack_require__(1);
 
 	var _Settings2 = _interopRequireDefault(_Settings);
 
@@ -899,10 +884,20 @@
 
 	        _scope.setEmitter(json_tools.emitter);
 
-	        _scope.obj_image = document.createElement('img');
+	        // _scope.obj_image = document.createElement('img');
+	        _scope.obj_image = new Image();
+
+	        _scope.obj_image.style.border = '1px solid #0ff';
+
+	        document.getElementsByTagName('body')[0].appendChild(_scope.obj_image);
 
 	        _scope.obj_image.onload = function () {
-	            console.log('onload', this.width);
+	            var _json_data = {
+	                data: this.src,
+	                origin_width: this.width,
+	                origin_height: this.height
+	            };
+	            _scope.getEmitter().emit('init.data.size.asking', _json_data);
 	        };
 
 	        _scope.obj_canvas = document.createElement('canvas');
@@ -927,7 +922,7 @@
 	    }, {
 	        key: 'operateImageSize',
 	        value: function operateImageSize(_json_data) {
-	            console.log('_json_data ::: ', _json_data);
+	            console.log('operateImageSize >> _json_data ::: ', _json_data);
 	            var _scope = this;
 
 	            _scope.obj_canvas_2d.clearRect(0, 0, _scope.obj_canvas.width, _scope.obj_canvas.height);
@@ -935,10 +930,8 @@
 	            var _str_output = '';
 
 	            // **************** 圖片
-	            // let _json_setting = _scope.getOutputImageSetting(),
 	            var _json_setting = _json_data.setting,
 	                _str_size = _json_setting.size;
-	            _scope.obj_image.src = _json_data.data;
 
 	            if (_str_size === _Settings2.default.OUTPUT_SIZE_SCALE) {
 	                var _num_width = Math.floor(_json_data.origin_width * _json_setting.range / 100);
@@ -988,13 +981,7 @@
 	            }
 
 	            if (_str_output !== '') {
-	                console.log('_str_output :: ', _str_output);
-
 	                _scope.setOriginImage({ origin_data: _str_output });
-
-	                // _scope.getEmitter().emit('init.data.changed',{
-	                //     method: _str_output
-	                // });
 	            }
 	        }
 
@@ -1058,7 +1045,7 @@
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _Settings = __webpack_require__(2);
+	var _Settings = __webpack_require__(1);
 
 	var _Settings2 = _interopRequireDefault(_Settings);
 
@@ -1098,16 +1085,6 @@
 			value: function setModuleId(str) {
 				this.module_id = str;
 			}
-
-			// // 抓原始圖片資料
-			// setImageInitData( str_bas64 ){
-			// 	let _scope = this;
-			// 	this.getEmitter().emit('origin.data.changed', {
-			// 		origin_data: str_bas64,
-			// 		setting: _scope.getOutputImageSetting()
-			// 	});
-			// }
-
 		}, {
 			key: 'setEmitter',
 			value: function setEmitter(object) {
@@ -1498,9 +1475,6 @@
 					var _str_image_data = windowURL.createObjectURL(this.files[0]);
 					// scope_calss.setImageInitData( _str_image_data );
 
-					console.log('_str_image_data :: ', _str_image_data);
-					console.log('this.files[0] :: ', this.files[0]);
-
 					scope_calss.getEmitter().emit('origin.data.changed', {
 						origin_data: _str_image_data,
 						setting: scope_calss.getOutputImageSetting()
@@ -1555,13 +1529,11 @@
 
 	'use strict';
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
-	var _Settings = __webpack_require__(2);
+	var _Settings = __webpack_require__(1);
 
 	var _Settings2 = _interopRequireDefault(_Settings);
 
@@ -1626,21 +1598,9 @@
 
 			if (obj_main !== undefined) {
 
-				// // 用完運算結束後，我們要用出預覽圖
-				// _scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
-				// 	let _json_data = arguments[0];
-				// 	mainImageFilter.getObjImagePreview().src = _json_data.data;
-
-				// 	// **************** 圖片
-				// 	mainImageFilter.getObjImagePreview().width = _scope.getOriginImageWidth() / 2;
-				// 	mainImageFilter.getObjImagePreview().height = _scope.getOriginImageHeight() / 2;
-				// });
-
 				// 用完運算結束後，我們要用出預覽圖
 				_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function (e) {
 					var _json_data = arguments[0];
-					console.log('step.image.final.step.computed', _json_data);
-					// mainImageFilter.getObjImagePreview().src = imageDataOriginal.obj_canvas.toDataURL() ;
 					mainImageFilter.getObjImagePreview().src = _json_data.data;
 				});
 
@@ -1722,23 +1682,22 @@
 				});
 
 				_scope.getGlobalConst(_scope).emitter.on('init.data.changed', function (e) {
+					console.log('----- init.data.changed -----');
 					var _json_data = arguments[0];
 					imageDataComputeProcess.setStepImage([], _imageDataComputeProcess2.default.TIMMING_RESET, _json_data);
 				});
 
-				_scope.getGlobalConst(_scope).emitter.on('origin.data.changed', function (e) {
+				_scope.getGlobalConst(_scope).emitter.on('init.data.size.asking', function (e) {
+					console.log('----- init.data.size.asking -----');
 					var _json_data = arguments[0];
-
+					_json_data.setting = mainImageFilter.getOutputImageSetting();
 					imageDataOriginal.operateImageSize(_json_data);
-					// mainImageFilter.operateImageSize( _json_data );
-					// imageDataComputeProcess.operateOutputImage();
-					// imageDataComputeProcess.setOriginImage( _json_data );
 				});
 
-				_scope.getGlobalConst(_scope).emitter.on('origin.image.info.loaded', function (e) {
-					var _json = arguments[0];
-					_scope.setOriginImageWidth(_json.width);
-					_scope.setOriginImageHeight(_json.height);
+				_scope.getGlobalConst(_scope).emitter.on('origin.data.changed', function (e) {
+					console.log('----- origin.data.changed -----');
+					var _json_data = arguments[0];
+					imageDataOriginal.obj_image.src = _json_data.origin_data;
 				});
 
 				_scope.getGlobalConst(_scope).emitter.on('step.image.success.loaded', function (e) {
@@ -1794,8 +1753,6 @@
 						imageDataComputeMethod.changeData(_sary_step_method[_num_step_length].method, _json_data.data);
 					} else {
 						// 圖片處理好了，我們現在要準備預覽
-						_json_data.origin_width = _scope.getOriginImageWidth();
-						_json_data.origin_height = _scope.getOriginImageHeight();
 						_scope.getGlobalConst(_scope).emitter.emit('step.image.final.step.computed', _json_data);
 						console.log('******************* 預覽圖片!! *******************');
 					}
@@ -1804,28 +1761,6 @@
 
 			return _this;
 		}
-
-		_createClass(PictureDraw, [{
-			key: 'setOriginImageWidth',
-			value: function setOriginImageWidth(num) {
-				this.origin_image_width = num || 0;
-			}
-		}, {
-			key: 'setOriginImageHeight',
-			value: function setOriginImageHeight(num) {
-				this.origin_image_height = num || 0;
-			}
-		}, {
-			key: 'getOriginImageWidth',
-			value: function getOriginImageWidth() {
-				return this.origin_image_width;
-			}
-		}, {
-			key: 'getOriginImageHeight',
-			value: function getOriginImageHeight() {
-				return this.origin_image_height;
-			}
-		}]);
 
 		return PictureDraw;
 	})(_globalConst2.default);
@@ -1845,7 +1780,7 @@
 		value: true
 	});
 
-	var _Settings = __webpack_require__(2);
+	var _Settings = __webpack_require__(1);
 
 	var _Settings2 = _interopRequireDefault(_Settings);
 
@@ -1853,7 +1788,7 @@
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _tools = __webpack_require__(1);
+	var _tools = __webpack_require__(2);
 
 	var _tools2 = _interopRequireDefault(_tools);
 

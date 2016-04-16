@@ -23,15 +23,6 @@ export default class MainImageFilter extends GlobalConst {
 		this.module_id = str;
 	}
 
-	// // 抓原始圖片資料
-	// setImageInitData( str_bas64 ){
-	// 	let _scope = this;
-	// 	this.getEmitter().emit('origin.data.changed', {
-	// 		origin_data: str_bas64,
-	// 		setting: _scope.getOutputImageSetting()
-	// 	});
-	// }
-
 	setEmitter(object){
 		this.emitter = object ;
 	}
@@ -367,13 +358,11 @@ export default class MainImageFilter extends GlobalConst {
 			let _str_image_data = windowURL.createObjectURL(this.files[0]);
 			// scope_calss.setImageInitData( _str_image_data );
 
-			console.log( '_str_image_data :: ', _str_image_data );
-			console.log( 'this.files[0] :: ', this.files[0] );
-
 			scope_calss.getEmitter().emit('origin.data.changed', {
 				origin_data: _str_image_data,
 				setting: scope_calss.getOutputImageSetting()
 			});
+
 		}
 	}
 

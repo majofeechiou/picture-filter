@@ -27,21 +27,9 @@ export default class PictureDraw extends GlobalConst {
 
 		if( obj_main!==undefined ){
 
-			// // 用完運算結束後，我們要用出預覽圖
-			// _scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
-			// 	let _json_data = arguments[0];
-			// 	mainImageFilter.getObjImagePreview().src = _json_data.data;
-
-			// 	// **************** 圖片
-			// 	mainImageFilter.getObjImagePreview().width = _scope.getOriginImageWidth() / 2;
-			// 	mainImageFilter.getObjImagePreview().height = _scope.getOriginImageHeight() / 2;
-			// });
-
 			// 用完運算結束後，我們要用出預覽圖
 			_scope.getGlobalConst(_scope).emitter.on('step.image.final.step.computed', function(e){
 				let _json_data = arguments[0];
-				console.log( 'step.image.final.step.computed', _json_data);
-				// mainImageFilter.getObjImagePreview().src = imageDataOriginal.obj_canvas.toDataURL() ;
 				mainImageFilter.getObjImagePreview().src = _json_data.data ;
 			});
 
@@ -127,23 +115,22 @@ export default class PictureDraw extends GlobalConst {
 			});
 
 			_scope.getGlobalConst(_scope).emitter.on('init.data.changed', function(e){
+				console.log( '----- init.data.changed -----' );
 				let _json_data = arguments[0];
 				imageDataComputeProcess.setStepImage( [], ImageDataComputeProcess.TIMMING_RESET, _json_data );
 			});
 
-			_scope.getGlobalConst(_scope).emitter.on('origin.data.changed', function(e){
+			_scope.getGlobalConst(_scope).emitter.on('init.data.size.asking', function(e){
+				console.log( '----- init.data.size.asking -----' );
 				let _json_data = arguments[0];
-
+				_json_data.setting = mainImageFilter.getOutputImageSetting()
 				imageDataOriginal.operateImageSize( _json_data );
-					// mainImageFilter.operateImageSize( _json_data );
-					// imageDataComputeProcess.operateOutputImage();
-					// imageDataComputeProcess.setOriginImage( _json_data );
 			});
 
-			_scope.getGlobalConst(_scope).emitter.on('origin.image.info.loaded', function(e){
-				let _json = arguments[0];
-				_scope.setOriginImageWidth( _json.width );
-				_scope.setOriginImageHeight( _json.height );
+			_scope.getGlobalConst(_scope).emitter.on('origin.data.changed', function(e){
+				console.log( '----- origin.data.changed -----' );
+				let _json_data = arguments[0];
+				imageDataOriginal.obj_image.src = _json_data.origin_data;
 			});
 
 			_scope.getGlobalConst(_scope).emitter.on('step.image.success.loaded', function(e){
@@ -202,14 +189,11 @@ export default class PictureDraw extends GlobalConst {
 				let _sary_step_image = imageDataComputeProcess.getStepImage(),
 					_json_data = _sary_step_image[_sary_step_image.length-1];
 
-
 				if( _num_step_length<_sary_step_method.length ){ 
 					// 先處理圖片
 					imageDataComputeMethod.changeData( _sary_step_method[_num_step_length].method, _json_data.data );
 				}else{
 					// 圖片處理好了，我們現在要準備預覽
-					_json_data.origin_width = _scope.getOriginImageWidth();
-					_json_data.origin_height = _scope.getOriginImageHeight();
 					_scope.getGlobalConst(_scope).emitter.emit('step.image.final.step.computed', _json_data);
 					console.log('******************* 預覽圖片!! *******************');
 				}
@@ -218,20 +202,6 @@ export default class PictureDraw extends GlobalConst {
 
 		}
 
-	}
-
-	setOriginImageWidth( num ){
-		this.origin_image_width = num || 0 ;
-	}
-	setOriginImageHeight( num ){
-		this.origin_image_height = num || 0 ;
-	}
-
-	getOriginImageWidth(){
-		return this.origin_image_width ;
-	}
-	getOriginImageHeight(){
-		return this.origin_image_height ;
 	}
 
 };

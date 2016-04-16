@@ -11,10 +11,20 @@ export default class ImageDataOriginal extends Tools {
 
         _scope.setEmitter( json_tools.emitter );
 
-        _scope.obj_image = document.createElement('img');
+        // _scope.obj_image = document.createElement('img');
+        _scope.obj_image = new Image();
+
+        _scope.obj_image.style.border = '1px solid #0ff';
+
+        document.getElementsByTagName('body')[0].appendChild( _scope.obj_image );
 
         _scope.obj_image.onload = function(){
-            console.log( 'onload', this.width );
+            let _json_data = {
+                data: this.src,
+                origin_width: this.width,
+                origin_height: this.height
+            };
+            _scope.getEmitter().emit( 'init.data.size.asking', _json_data );
         };
 
         _scope.obj_canvas = document.createElement('canvas');
@@ -34,7 +44,7 @@ export default class ImageDataOriginal extends Tools {
     }
 
     operateImageSize( _json_data ){
-        console.log( '_json_data ::: ', _json_data );
+        console.log( 'operateImageSize >> _json_data ::: ', _json_data );
         let _scope = this ;
 
         _scope.obj_canvas_2d.clearRect( 0, 0, _scope.obj_canvas.width, _scope.obj_canvas.height );
@@ -42,10 +52,8 @@ export default class ImageDataOriginal extends Tools {
         let _str_output = '';
 
         // **************** 圖片
-        // let _json_setting = _scope.getOutputImageSetting(),
         let _json_setting = _json_data.setting,
             _str_size = _json_setting.size;
-        _scope.obj_image.src = _json_data.data;
 
         if( _str_size===Settings.OUTPUT_SIZE_SCALE ){
             let _num_width = Math.floor(_json_data.origin_width * _json_setting.range / 100);
@@ -93,13 +101,7 @@ export default class ImageDataOriginal extends Tools {
         }
 
         if( _str_output!=='' ){
-            console.log( '_str_output :: ', _str_output );
-
             _scope.setOriginImage( {origin_data:_str_output} );
-
-            // _scope.getEmitter().emit('init.data.changed',{
-            //     method: _str_output
-            // });
         }
 
     }

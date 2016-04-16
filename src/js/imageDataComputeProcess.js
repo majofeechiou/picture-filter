@@ -46,9 +46,6 @@ export default class ImageDataComputeProcess extends Tools {
 		}
 
 		_scope.step_image.push(json_data) ;
-
-		console.log( '_scope.step_image :: ', _scope.step_image );
-
 		_scope.getEmitter().emit('step.image.pushed');
 
 	}
